@@ -22,20 +22,14 @@ import org.apache.http.client.utils.HttpClientUtils;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.message.BasicHeader;
-import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
-import org.omg.CORBA.COMM_FAILURE;
-import org.springframework.cglib.beans.BeanMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author Bofa
@@ -45,6 +39,8 @@ import java.util.stream.Stream;
  * @date 2019/4/4
  */
 public class HttpUtil {
+
+    static final Logger logger = LoggerFactory.getLogger(HttpUtil.class);
 
     private static CloseableHttpClient createDefault() {
         return HttpClientBuilder.create().build();
@@ -119,14 +115,20 @@ public class HttpUtil {
 
         StringEntity stringEntity = new StringEntity(JSON.toJSONString(u), CharsetUtil.UTF_8);
         post.setEntity(stringEntity);
+
+        logger.debug("HttpPost: " + post);
         T t = null;
         try {
             t = clazz.newInstance();
             CloseableHttpResponse response = httpClient.execute(post);
+            logger.debug("HttpResponse: " + response);
+            logger.debug("ResponseStatusCode: " + response.getStatusLine().getStatusCode());
             if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                 JSONObject jsonObject = JSONObject.parseObject(EntityUtils.toString(response.getEntity()));
+                logger.debug("ResponseCode: " + jsonObject.get(CODE));
                 if (CODE_SUCCESS.equals(jsonObject.get(CODE))) {
                     JSONObject data = (JSONObject) jsonObject.get(DATA);
+                    logger.debug("ResponseData: " + data);
                     if (data != null) {
                         t = JSONObject.toJavaObject(data, clazz);
                     }
@@ -141,15 +143,16 @@ public class HttpUtil {
                 t.setCode(String.valueOf(response.getStatusLine().getStatusCode()));
                 t.setSuccess(false);
             }
+            logger.debug("T: " + t);
         } catch (IOException | IllegalAccessException | InstantiationException e) {
-            System.err.println(Arrays.toString(e.getStackTrace()));
+            logger.error("HttpUtilError", e);
         }
         return t;
     }
 
     public static void main(String[] args) {
         LoginRequestPacket request = new LoginRequestPacket();
-        request.setUsername("ch");
+        request.setUserName("ch");
         request.setPassword("ch4sb");
         LoginResponsePacket response = postJsonData(Command.LOGIN_REQUEST.url, request, LoginResponsePacket.class);
         System.out.println(response);

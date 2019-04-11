@@ -1,7 +1,11 @@
 package com.bofa.protocol.response;
 
+import com.bofa.entity.User;
+import com.bofa.entity.UserFriend;
 import com.bofa.protocol.command.Command;
 import lombok.Data;
+
+import java.util.List;
 
 /**
  * @author Bofa
@@ -12,11 +16,9 @@ import lombok.Data;
 @Data
 public class RegisterResponsePacket extends AbstractResponsePacket {
 
-    Integer userid;
+    private User user;
 
-    String username;
-
-    Integer status;
+    private List<UserFriend> userFriends;
 
     @Override
     public Byte getCommand() {

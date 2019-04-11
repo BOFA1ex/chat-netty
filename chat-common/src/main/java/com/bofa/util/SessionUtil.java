@@ -18,17 +18,17 @@ import java.util.concurrent.*;
  */
 public class SessionUtil {
 
-    private static Map<String, Channel> userIdChannelMap = new ConcurrentHashMap<>();
+    private static Map<Integer, Channel> userIdChannelMap = new ConcurrentHashMap<>();
     private static CyclicBarrier loginOrder = new CyclicBarrier(2);
 
     public static void bindSession(Session session, Channel channel) {
-        userIdChannelMap.put(String.valueOf(session.getUserId()), channel);
+        userIdChannelMap.put(session.getUser().getUserId(), channel);
         channel.attr(Attributes.SESSION).set(session);
     }
 
     public static void unbindSession(Channel channel) {
         if (hasLogin(channel)) {
-            userIdChannelMap.remove(getSession(channel).getUserId());
+            userIdChannelMap.remove(getSession(channel).getUser().getUserId());
             channel.attr(Attributes.SESSION).set(null);
         } else {
             ChatException.throwChatException(ChatErrorCode.UNAUTHORIZED, "请重新登录");
@@ -43,7 +43,7 @@ public class SessionUtil {
         return channel.attr(Attributes.SESSION).get();
     }
 
-    public static Channel getChannel(String userId) {
+    public static Channel getChannel(Integer userId) {
         return userIdChannelMap.get(userId);
     }
 //

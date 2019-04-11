@@ -1,6 +1,9 @@
 package com.bofa.client.console;
 
 import com.bofa.attribute.UserStatus;
+import com.bofa.client.util.ConsoleBuilder;
+import com.bofa.client.util.StringTokenUtil;
+import com.bofa.entity.UserFriend;
 import com.bofa.exception.ChatErrorCode;
 import com.bofa.exception.ChatException;
 import com.bofa.protocol.request.LoginRequestPacket;
@@ -9,10 +12,13 @@ import com.bofa.protocol.request.RegisterRequestPacket;
 import com.bofa.session.Session;
 import com.bofa.util.SessionUtil;
 import io.netty.channel.Channel;
-import org.springframework.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Console;
 import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * @author Bofa
@@ -22,49 +28,37 @@ import java.util.*;
  */
 public class ConsoleCommandManager {
 
-    private static HashMap<ClientCommand, ConsoleCommand> chain = new HashMap<>();
+    private static HashMap<ClientCommand, ConsoleCommand> commandHashMap = new HashMap<>();
 
-    private static ConsoleCommand HELP = new HelpCommandHandler();
+    private static final ConsoleCommand HELP = new HelpCommandHandler();
 
     static {
-        chain.put(ClientCommand.LOGIN, new LoginCommandHandler());
-        chain.put(ClientCommand.REGISTER, new RegisterCommandHandler());
-        chain.put(ClientCommand.HELP, new HelpCommandHandler());
-        chain.put(ClientCommand.LOGOUT, new LogoutCommandHandler());
+        commandHashMap.put(ClientCommand.LOGIN, new LoginCommandHandler());
+        commandHashMap.put(ClientCommand.REGISTER, new RegisterCommandHandler());
+        commandHashMap.put(ClientCommand.HELP, new HelpCommandHandler());
+        commandHashMap.put(ClientCommand.LOGOUT, new LogoutCommandHandler());
     }
 
     public static void execute(Channel channel, Scanner scanner) {
+        System.out.print("input command: ");
         String source = scanner.nextLine();
         if (StringUtils.isEmpty(source)) {
             HELP.commandHandle(channel, scanner);
             return;
         }
         ClientCommand cmd = null;
+        source = source.trim().toUpperCase();
         try {
-            cmd = ClientCommand.valueOf(source.trim().toUpperCase());
+            cmd = ClientCommand.valueOf(source);
         } catch (Exception e) {
-            System.out.println("无法识别该指令[" + source.trim().toUpperCase() + "]");
+            System.out.println("无法识别该指令[" + source + "]");
         }
-        chain.get(cmd).commandHandle(channel, scanner);
+        commandHashMap.get(cmd).commandHandle(channel, scanner);
     }
 //
 //    private static String getMainCommand(String source) {
 //        return source.substring(0, source.indexOf(" "));
 //    }
-
-    private static String[] split(String source, String delim) {
-        StringTokenizer tokenizer = new StringTokenizer(source, " \r\t\n" + delim);
-        int count = (tokenizer.countTokens() - 1) / 2;
-        String[] result = new String[tokenizer.countTokens()];
-        for (int i = 0; tokenizer.hasMoreTokens(); i++) {
-            result[i] = tokenizer.nextToken();
-        }
-        String[] response = new String[count];
-        for (int i = 2, k = 0; count > 0; i += count, count--) {
-            response[k++] = result[i];
-        }
-        return response;
-    }
 
     static class HelpCommandHandler implements ConsoleCommand {
         @Override
@@ -82,12 +76,14 @@ public class ConsoleCommandManager {
             String userName, password;
             System.err.print("input your username: ");
             userName = scanner.nextLine();
-            password = new String(getConsole().readPassword("input your password: "));
+            password = new String(ConsoleBuilder.INSTANCE.readPassword("input your password: "));
             LoginRequestPacket requestPacket = new LoginRequestPacket();
-            if (SessionUtil.getSession(channel) != null && SessionUtil.getSession(channel).getUserName().equals(userName)) {
-                ChatException.throwChatException(ChatErrorCode.BAD_REQUEST, "客户端已登录[" + SessionUtil.getSession(channel).getUserName() + "]");
+            if (SessionUtil.getSession(channel) != null
+                    && SessionUtil.getSession(channel).getUser().getUserName().equals(userName)) {
+                ChatException.throwChatException(ChatErrorCode.BAD_REQUEST, "客户端已登录["
+                        + SessionUtil.getSession(channel).getUser().getUserName() + "]");
             }
-            requestPacket.setUsername(userName);
+            requestPacket.setUserName(userName);
             requestPacket.setPassword(password);
             channel.writeAndFlush(requestPacket);
         }
@@ -100,32 +96,57 @@ public class ConsoleCommandManager {
             String userName, password;
             System.err.print("input your username: ");
             userName = scanner.nextLine();
-            password = new String(getConsole().readPassword("input your password: "));
+            password = new String(ConsoleBuilder.INSTANCE.readPassword("input your password: "));
             RegisterRequestPacket requestPacket = new RegisterRequestPacket();
-            requestPacket.setUsername(userName);
+            requestPacket.setUserName(userName);
             requestPacket.setPassword(password);
             channel.writeAndFlush(requestPacket);
         }
     }
 
-    private static class LogoutCommandHandler implements ConsoleCommand {
+    static class LogoutCommandHandler implements ConsoleCommand {
         @Override
         public void commandHandle(Channel channel, Scanner scanner) {
             if (!SessionUtil.hasLogin(channel)) {
-                ChatException.throwChatException(ChatErrorCode.UNAUTHORIZED, "注销失败，当前没有登录的账号");
+                System.out.println("注销失败，当前没有登录的账号");
             }
             LogoutRequestPacket requestPacket = new LogoutRequestPacket();
-            requestPacket.setUserid(SessionUtil.getSession(channel).getUserId());
+            requestPacket.setUserId(SessionUtil.getSession(channel).getUser().getUserId());
             requestPacket.setStatus(UserStatus.OFFLINE);
             channel.writeAndFlush(requestPacket);
         }
     }
 
-    private static Console getConsole() {
-        Console cons = System.console();
-        if (cons == null) {
-            System.out.println("Couldn't get Console instance, maybe you're running this from within an IDE?");
+    static class MessageCommandHandle implements ConsoleCommand {
+        @Override
+        public void commandHandle(Channel channel, Scanner scanner) {
+            if (!SessionUtil.hasLogin(channel)) {
+                ChatException.throwChatException(ChatErrorCode.UNAUTHORIZED, "注销失败，当前没有登录的账号");
+            }
+            String[] friendNames = StringTokenUtil.split(scanner.nextLine(), " ,\r\t\n");
+            Stream.of(friendNames).forEach(friendName -> {
+                SessionUtil.getSession(channel).getFriends().forEach(
+                        userFriend -> {
+                            if (userFriend.getUserName().equals(friendName)) {
+                            }
+                        }
+                );
+            });
+            for (String name : friendNames) {
+                int userFriendId;
+                boolean flag = false;
+                for (UserFriend uf : SessionUtil.getSession(channel).getFriends()) {
+                    if (uf.getUserName().equals(name)) {
+                        userFriendId = uf.getUserId();
+                        flag = true;
+                        break;
+                    }
+                }
+                if (!flag) {
+                    ChatException.throwChatException(ChatErrorCode.Parameter_invalid, "找不到该好友[" + name + "]");
+                }
+            }
+
         }
-        return cons;
     }
 }

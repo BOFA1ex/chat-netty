@@ -1,10 +1,13 @@
 package com.bofa.server.handler;
 
+import com.bofa.server.util.LoggerUtil;
 import com.bofa.session.Session;
 import com.bofa.util.SessionUtil;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Bofa
@@ -16,6 +19,8 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 public class AuthHandler extends ChannelInboundHandlerAdapter {
 
     public static final AuthHandler INSTANCE = new AuthHandler();
+    static final Logger logger = LoggerFactory.getLogger(AuthHandler.class);
+
     /**
      * SimpleChannelInboundHandler的acceptInboundMessage，this.matcher会缓存java对象的类型
      * 会根据请求的java对象来判断是否需要进行channelRead.
@@ -38,7 +43,7 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
-        System.out.println("[" + SessionUtil.getSession(ctx.channel()).getUserName() + "] already login");
+        LoggerUtil.debug(logger, SessionUtil.getSession(ctx.channel()).getUser().getUserName(), "already login");
         super.handlerRemoved(ctx);
     }
 }

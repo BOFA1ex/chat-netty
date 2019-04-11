@@ -12,7 +12,7 @@ import lombok.Data;
 @Data
 public class LogoutResponsePacket extends AbstractResponsePacket {
 
-    String username;
+    String userName;
 
     @Override
     public Byte getCommand() {

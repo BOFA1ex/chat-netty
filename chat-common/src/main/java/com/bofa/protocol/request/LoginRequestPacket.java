@@ -13,7 +13,7 @@ import lombok.Data;
 @Data
 public class LoginRequestPacket extends AbstractRequestPacket {
 
-    String username;
+    String userName;
 
     String password;
 
@@ -21,6 +21,5 @@ public class LoginRequestPacket extends AbstractRequestPacket {
     public Byte getCommand() {
         return Command.LOGIN_REQUEST.command;
     }
-
 
 }

@@ -1,5 +1,7 @@
 package com.bofa.client.handler;
 
+import com.bofa.client.util.PrintUtil;
+import com.bofa.entity.User;
 import com.bofa.protocol.response.RegisterResponsePacket;
 import com.bofa.session.Session;
 import com.bofa.util.SessionUtil;
@@ -20,17 +22,13 @@ public class RegisterResponseHandler extends SimpleChannelInboundHandler<Registe
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, RegisterResponsePacket response) throws Exception {
-        String userName = response.getUsername();
-        Integer userId = response.getUserid();
-//        try {
+        User user = response.getUser();
+        String userName = user.getUserName();
         if (response.isSuccess()) {
-            System.out.println("[" + userName + "]" + "register and login success");
-            SessionUtil.bindSession(new Session(userId, userName), ctx.channel());
+            PrintUtil.println(userName, "register and login success");
+            SessionUtil.bindSession(new Session(user, response.getUserFriends()), ctx.channel());
         } else {
-            System.out.println("[" + userName + "]" + "register fail, reason: " + response.getMessage());
+            PrintUtil.println(userName, "register fail, reason: " + response.getMessage());
         }
-//        }finally{
-//            SessionUtil.signalLoginOrder();
-//        }
     }
 }

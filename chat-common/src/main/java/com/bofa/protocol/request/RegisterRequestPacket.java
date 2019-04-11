@@ -12,7 +12,7 @@ import lombok.Data;
 @Data
 public class RegisterRequestPacket extends AbstractRequestPacket {
 
-    String username;
+    String userName;
 
     String password;
 

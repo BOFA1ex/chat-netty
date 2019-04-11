@@ -1,5 +1,6 @@
 package com.bofa.server.service;
 
+import com.bofa.entity.User;
 import com.bofa.exception.ChatErrorCode;
 import com.bofa.exception.ChatException;
 import com.bofa.protocol.command.Command;
@@ -23,15 +24,11 @@ import java.util.function.Function;
 public class UserSv extends BaseSv {
 
     public static LoginResponsePacket login(LoginRequestPacket request) {
-        LoginResponsePacket response = post(Command.LOGIN_REQUEST.url, request, LoginResponsePacket.class);
-        response.setUsername(request.getUsername());
-        return response;
+        return post(Command.LOGIN_REQUEST.url, request, LoginResponsePacket.class);
     }
 
     public static RegisterResponsePacket register(RegisterRequestPacket request) {
-        RegisterResponsePacket response = post(Command.REGISTER_REQUEST.url, request, RegisterResponsePacket.class);
-        response.setUsername(request.getUsername());
-        return response;
+        return post(Command.REGISTER_REQUEST.url, request, RegisterResponsePacket.class);
     }
 
     public static LogoutResponsePacket logout(LogoutRequestPacket request) {

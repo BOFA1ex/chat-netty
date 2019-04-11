@@ -4,9 +4,12 @@ import com.bofa.exception.ChatException;
 import com.bofa.protocol.request.LogoutRequestPacket;
 import com.bofa.protocol.response.LogoutResponsePacket;
 import com.bofa.server.service.UserSv;
+import com.bofa.server.util.LoggerUtil;
 import com.bofa.util.SessionUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Bofa
@@ -16,16 +19,20 @@ import io.netty.channel.SimpleChannelInboundHandler;
  */
 public class LogoutRequestHandler extends SimpleChannelInboundHandler<LogoutRequestPacket> {
 
-    public static LogoutRequestHandler INSTANCE = new LogoutRequestHandler();
+    static final LogoutRequestHandler INSTANCE = new LogoutRequestHandler();
+    static final Logger logger = LoggerFactory.getLogger(LogoutRequestHandler.class);
+
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, LogoutRequestPacket requestPacket) throws Exception {
         LogoutResponsePacket response = UserSv.logout(requestPacket);
-        response.setUsername(SessionUtil.getSession(ctx.channel()).getUserName());
+        String userName = SessionUtil.getSession(ctx.channel()).getUser().getUserName();
+        response.setUserName(userName);
         if (response.isSuccess()) {
+            LoggerUtil.debug(logger,userName,"logout");
             SessionUtil.unbindSession(ctx.channel());
         } else {
-            System.out.println(response.getMessage());
+            logger.error(response.getMessage());
         }
         ctx.channel().writeAndFlush(response);
     }

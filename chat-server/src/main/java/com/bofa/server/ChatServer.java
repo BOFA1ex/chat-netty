@@ -9,6 +9,7 @@ import com.bofa.server.handler.ChatServerHandler;
 import com.bofa.server.handler.LoginRequestHandler;
 import com.bofa.server.handler.RegisterRequestHandler;
 import com.bofa.util.LocalDateTimeUtil;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -17,8 +18,13 @@ import io.netty.channel.ServerChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Bofa
@@ -27,6 +33,8 @@ import java.time.LocalDateTime;
  * @date 2019/4/2
  */
 public class ChatServer {
+
+    static final Logger logger = LoggerFactory.getLogger(ChatServer.class);
 
     private static final int DEFAULT_PORT = 8000;
 
@@ -56,7 +64,7 @@ public class ChatServer {
     static void bind(ServerBootstrap serverBootstrap, int port) {
         serverBootstrap.bind(port).addListener(future -> {
             if (future.isSuccess()) {
-                System.err.println(LocalDateTimeUtil.now() + " port[" + port + "] bind success");
+                logger.debug(" port[" + port + "] bind success");
             } else {
                 bind(serverBootstrap, port + 1);
             }

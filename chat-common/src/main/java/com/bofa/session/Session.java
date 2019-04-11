@@ -1,5 +1,7 @@
 package com.bofa.session;
 
+import com.bofa.entity.User;
+import com.bofa.entity.UserFriend;
 import lombok.Data;
 
 import java.util.List;
@@ -13,24 +15,20 @@ import java.util.List;
 @Data
 public class Session {
 
-    public Session(Integer userId, String userName) {
-        this.userName = userName;
-        this.userId = userId;
+    public Session(User user, List<UserFriend> friends) {
+        this.user = user;
+        this.friends = friends;
     }
-    private Integer userId;
 
-    private String userName;
+    private User user;
 
-    private Integer status;
-
-    private List<String> friendIds;
+    private List<UserFriend> friends;
 
     @Override
     public String toString() {
         return "Session{" +
-                "userId='" + userId + '\'' +
-                ", userName='" + userName + '\'' +
-                ", groupUserIds=" + friendIds +
+                "user='" + user + '\'' +
+                ", friendNames=" + friends +
                 '}';
     }
 }

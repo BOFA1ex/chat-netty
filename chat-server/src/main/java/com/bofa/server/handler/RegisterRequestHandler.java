@@ -1,13 +1,20 @@
 package com.bofa.server.handler;
 
+import com.bofa.entity.User;
+import com.bofa.entity.UserFriend;
 import com.bofa.protocol.request.RegisterRequestPacket;
 import com.bofa.protocol.response.RegisterResponsePacket;
 import com.bofa.server.service.UserSv;
+import com.bofa.server.util.LoggerUtil;
 import com.bofa.session.Session;
 import com.bofa.util.SessionUtil;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 /**
  * @author Bofa
@@ -16,18 +23,21 @@ import io.netty.channel.SimpleChannelInboundHandler;
  * @date 2019/4/8
  */
 @ChannelHandler.Sharable
-public class RegisterRequestHandler extends SimpleChannelInboundHandler<RegisterRequestPacket>{
-
+public class RegisterRequestHandler extends SimpleChannelInboundHandler<RegisterRequestPacket> {
     static final RegisterRequestHandler INSTANCE = new RegisterRequestHandler();
+    static final Logger logger = LoggerFactory.getLogger(LoginRequestHandler.class);
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, RegisterRequestPacket requestPacket) throws Exception {
         RegisterResponsePacket response = UserSv.register(requestPacket);
+        String userName = requestPacket.getUserName();
+        User user = response.getUser();
+        List<UserFriend> userFriends = response.getUserFriends();
         if (response.isSuccess()) {
-            System.out.println("[" + requestPacket.getUsername() + "] register success");
-            SessionUtil.bindSession(new Session(response.getUserid(), response.getUsername()), ctx.channel());
+            LoggerUtil.debug(logger, userName, "register success");
+            SessionUtil.bindSession(new Session(user, userFriends), ctx.channel());
         } else {
-            System.out.println("[" + requestPacket.getUsername() + "] register fail");
+            LoggerUtil.debug(logger, userName, "register fail");
         }
         ctx.channel().writeAndFlush(response);
     }

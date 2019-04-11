@@ -1,5 +1,6 @@
 package com.bofa.client.handler;
 
+import com.bofa.client.util.PrintUtil;
 import com.bofa.exception.ChatException;
 import com.bofa.protocol.response.LogoutResponsePacket;
 import com.bofa.util.SessionUtil;
@@ -18,11 +19,12 @@ public class LogoutResponseHandler extends SimpleChannelInboundHandler<LogoutRes
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, LogoutResponsePacket logoutResponsePacket) throws Exception {
+        String userName = logoutResponsePacket.getUserName();
         if (logoutResponsePacket.isSuccess()) {
-            System.out.println("[" + logoutResponsePacket.getUsername() + "]" + "logout success");
+            PrintUtil.println(userName, "logout success");
             SessionUtil.unbindSession(ctx.channel());
         } else {
-            System.out.println("[" + logoutResponsePacket.getUsername() + "]" + "logout fail: " + logoutResponsePacket.getMessage());
+            PrintUtil.println(userName, "logout fail: " + logoutResponsePacket.getMessage());
         }
     }
 }

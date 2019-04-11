@@ -12,5 +12,5 @@ import lombok.Data;
 @Data
 public abstract class AbstractRequestPacket extends Packet{
 
-    Integer userid;
+    Integer userId;
 }

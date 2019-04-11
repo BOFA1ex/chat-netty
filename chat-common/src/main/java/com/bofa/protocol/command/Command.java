@@ -43,5 +43,14 @@ public enum Command {
         this.url = url;
     }
 
+    public static String findByCommand(byte command){
+        for (Command c : values()) {
+            if (c.command == command){
+                return c.name();
+            }
+        }
+        return null;
+    }
+
 
 }
