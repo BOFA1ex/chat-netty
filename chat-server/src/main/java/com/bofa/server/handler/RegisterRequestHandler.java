@@ -4,6 +4,7 @@ import com.bofa.entity.User;
 import com.bofa.entity.UserFriend;
 import com.bofa.protocol.request.RegisterRequestPacket;
 import com.bofa.protocol.response.RegisterResponsePacket;
+import com.bofa.server.TaskManager;
 import com.bofa.server.service.UserSv;
 import com.bofa.server.util.LoggerUtil;
 import com.bofa.session.Session;
@@ -29,16 +30,18 @@ public class RegisterRequestHandler extends SimpleChannelInboundHandler<Register
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, RegisterRequestPacket requestPacket) throws Exception {
-        RegisterResponsePacket response = UserSv.register(requestPacket);
-        String userName = requestPacket.getUserName();
-        User user = response.getUser();
-        List<UserFriend> userFriends = response.getUserFriends();
-        if (response.isSuccess()) {
-            LoggerUtil.debug(logger, userName, "register success");
-            SessionUtil.bindSession(new Session(user, userFriends), ctx.channel());
-        } else {
-            LoggerUtil.debug(logger, userName, "register fail");
-        }
-        ctx.channel().writeAndFlush(response);
+        TaskManager.execute("register", () -> {
+            RegisterResponsePacket response = UserSv.register(requestPacket);
+            String userName = requestPacket.getUserName();
+            User user = response.getUser();
+            List<UserFriend> userFriends = response.getUserFriends();
+            if (response.isSuccess()) {
+                LoggerUtil.debug(logger, userName, "register success");
+                SessionUtil.bindSession(new Session(user, userFriends), ctx.channel());
+            } else {
+                LoggerUtil.debug(logger, userName, "register fail");
+            }
+            ctx.channel().writeAndFlush(response);
+        });
     }
 }

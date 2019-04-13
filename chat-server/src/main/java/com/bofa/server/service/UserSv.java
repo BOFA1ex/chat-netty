@@ -4,12 +4,8 @@ import com.bofa.entity.User;
 import com.bofa.exception.ChatErrorCode;
 import com.bofa.exception.ChatException;
 import com.bofa.protocol.command.Command;
-import com.bofa.protocol.request.LoginRequestPacket;
-import com.bofa.protocol.request.LogoutRequestPacket;
-import com.bofa.protocol.request.RegisterRequestPacket;
-import com.bofa.protocol.response.LoginResponsePacket;
-import com.bofa.protocol.response.LogoutResponsePacket;
-import com.bofa.protocol.response.RegisterResponsePacket;
+import com.bofa.protocol.request.*;
+import com.bofa.protocol.response.*;
 import com.bofa.server.util.HttpUtil;
 
 import java.util.function.BiFunction;
@@ -33,6 +29,14 @@ public class UserSv extends BaseSv {
 
     public static LogoutResponsePacket logout(LogoutRequestPacket request) {
         return post(Command.LOGOUT_REQUEST.url, request, LogoutResponsePacket.class);
+    }
+
+    public static MessageResponsePacket message(MessageRequestPacket request) {
+        return post(Command.MESSAGE_REQUEST.url, request, MessageResponsePacket.class);
+    }
+
+    public static ChangeStatusResponsePacket changeStatus(ChangeStatusRequestPacket request) {
+        return post(Command.CHANGE_STATUS_REQUEST.url, request, ChangeStatusResponsePacket.class);
     }
 
 }

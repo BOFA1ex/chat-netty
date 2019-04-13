@@ -23,12 +23,12 @@ public class RegisterResponseHandler extends SimpleChannelInboundHandler<Registe
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, RegisterResponsePacket response) throws Exception {
         User user = response.getUser();
-        String userName = user.getUserName();
         if (response.isSuccess()) {
-            PrintUtil.println(userName, "register and login success");
+            PrintUtil.println(user.getUserName(), "register and login success");
             SessionUtil.bindSession(new Session(user, response.getUserFriends()), ctx.channel());
         } else {
-            PrintUtil.println(userName, "register fail, reason: " + response.getMessage());
+            PrintUtil.println(response.getCode(), "register fail, reason: " + response.getMessage());
         }
+        SessionUtil.signalRespOrder();
     }
 }

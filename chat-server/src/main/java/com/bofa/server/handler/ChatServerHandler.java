@@ -38,6 +38,9 @@ public class ChatServerHandler extends SimpleChannelInboundHandler<AbstractReque
         handleMap.put(Command.LOGIN_REQUEST.command, LoginRequestHandler.INSTANCE);
         handleMap.put(Command.REGISTER_REQUEST.command, RegisterRequestHandler.INSTANCE);
         handleMap.put(Command.LOGOUT_REQUEST.command, LogoutRequestHandler.INSTANCE);
+        handleMap.put(Command.MESSAGE_REQUEST.command, MessageRequestHandler.INSTANCE);
+        handleMap.put(Command.MESSAGE_CALLBACK_REQUEST.command, MessageCallBackRequestHandler.INSTANCE);
+        handleMap.put(Command.CHANGE_STATUS_REQUEST.command, ChangeStatusRequestHandler.INSTANCE);
     }
 
     @Override
@@ -54,10 +57,15 @@ public class ChatServerHandler extends SimpleChannelInboundHandler<AbstractReque
      */
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        User user = SessionUtil.getSession(ctx.channel()).getUser();
-        LoggerUtil.debug(logger, user.getUserName(), "force logout");
-        TaskManager.execute(SessionUtil.getSession(ctx.channel()) + "force logout", forceLogout(user.getUserId()));
-        SessionUtil.unbindSession(ctx.channel());
+        /**
+         * 如果未正常注销
+         */
+        if (SessionUtil.hasLogin(ctx.channel())){
+            User user = SessionUtil.getSession(ctx.channel()).getUser();
+            LoggerUtil.debug(logger, user.getUserName(), "force logout");
+            TaskManager.execute(SessionUtil.getSession(ctx.channel()) + "force logout", forceLogout(user.getUserId()));
+            SessionUtil.unbindSession(ctx.channel());
+        }
         super.channelInactive(ctx);
     }
 
@@ -65,7 +73,7 @@ public class ChatServerHandler extends SimpleChannelInboundHandler<AbstractReque
         return () -> {
             LogoutRequestPacket requestPacket = new LogoutRequestPacket();
             requestPacket.setUserId(userId);
-            requestPacket.setStatus(UserStatus.OFFLINE);
+            requestPacket.setStatus(UserStatus.OFFLINE.status);
             UserSv.logout(requestPacket);
         };
     }

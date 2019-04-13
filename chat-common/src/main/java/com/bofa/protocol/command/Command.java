@@ -32,7 +32,9 @@ public enum Command {
     CHANGE_STATUS_REQUEST((byte) 4, "/chat/user/changeStatus"),
     CHANGE_STATUS_RESPONSE((byte) -4, "/chat/user/changeStatus"),
     MESSAGE_REQUEST((byte) 5, "/chat/user/message"),
-    MESSAGE_RESPONSE((byte) -5, "/chat/user/message");
+    MESSAGE_RESPONSE((byte) -5, "/chat/user/message"),
+    MESSAGE_CALLBACK_REQUEST((byte) 6, "/"),
+    MESSAGE_CALLBACK_RESPONSE((byte) -6, "/");
 
     public byte command;
 

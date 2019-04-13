@@ -2,12 +2,8 @@ package com.bofa.protocol;
 
 import com.alibaba.fastjson.parser.deserializer.OptionalCodec;
 import com.bofa.protocol.command.Command;
-import com.bofa.protocol.request.LoginRequestPacket;
-import com.bofa.protocol.request.LogoutRequestPacket;
-import com.bofa.protocol.request.RegisterRequestPacket;
-import com.bofa.protocol.response.LoginResponsePacket;
-import com.bofa.protocol.response.LogoutResponsePacket;
-import com.bofa.protocol.response.RegisterResponsePacket;
+import com.bofa.protocol.request.*;
+import com.bofa.protocol.response.*;
 import com.bofa.serialize.Serializer;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
@@ -42,6 +38,12 @@ public class PacketCodeC {
         packetTypeMap.put(Command.REGISTER_RESPONSE.command, RegisterResponsePacket.class);
         packetTypeMap.put(Command.LOGOUT_REQUEST.command, LogoutRequestPacket.class);
         packetTypeMap.put(Command.LOGOUT_RESPONSE.command, LogoutResponsePacket.class);
+        packetTypeMap.put(Command.MESSAGE_REQUEST.command, MessageRequestPacket.class);
+        packetTypeMap.put(Command.MESSAGE_RESPONSE.command, MessageResponsePacket.class);
+        packetTypeMap.put(Command.MESSAGE_CALLBACK_REQUEST.command, MessageCallBackRequestPacket.class);
+        packetTypeMap.put(Command.MESSAGE_CALLBACK_RESPONSE.command, MessageCallBackResponsePacket.class);
+        packetTypeMap.put(Command.CHANGE_STATUS_REQUEST.command, ChangeStatusRequestPacket.class);
+        packetTypeMap.put(Command.CHANGE_STATUS_RESPONSE.command, ChangeStatusResponsePacket.class);
     }
 
     public ByteBuf encode(ByteBuf byteBuf, Packet packet) {

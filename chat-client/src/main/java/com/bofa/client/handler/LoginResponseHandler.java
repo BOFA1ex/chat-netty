@@ -28,7 +28,8 @@ public class LoginResponseHandler extends SimpleChannelInboundHandler<LoginRespo
             PrintUtil.println(user.getUserName(), "login success");
             SessionUtil.bindSession(new Session(user, loginResponsePacket.getUserFriends()), ctx.channel());
         } else {
-            PrintUtil.println(user.getUserName(), "login fail, reason: " + loginResponsePacket.getMessage());
+            PrintUtil.println(loginResponsePacket.getCode(), "login fail, reason: " + loginResponsePacket.getMessage());
         }
+        SessionUtil.signalRespOrder();
     }
 }

@@ -28,7 +28,7 @@ public class TaskManager {
     }
 
     public static void execute(String taskName, Runnable runnable) {
-        LoggerUtil.debug(logger, "Task: ", taskName);
+        LoggerUtil.debug(logger, "Task", taskName.toUpperCase());
         BUSI_POOL.execute(runnable);
     }
 }

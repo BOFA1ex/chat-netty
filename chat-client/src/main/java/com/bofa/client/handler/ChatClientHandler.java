@@ -3,6 +3,7 @@ package com.bofa.client.handler;
 import com.bofa.client.console.ClientCommand;
 import com.bofa.protocol.command.Command;
 import com.bofa.protocol.response.AbstractResponsePacket;
+import com.bofa.protocol.response.ChangeStatusResponsePacket;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -30,6 +31,9 @@ public class ChatClientHandler extends SimpleChannelInboundHandler<AbstractRespo
         handlerMap.put(Command.LOGIN_RESPONSE.command, LoginResponseHandler.INSTANCE);
         handlerMap.put(Command.REGISTER_RESPONSE.command, RegisterResponseHandler.INSTANCE);
         handlerMap.put(Command.LOGOUT_RESPONSE.command, LogoutResponseHandler.INSTANCE);
+        handlerMap.put(Command.MESSAGE_RESPONSE.command, MessageResponseHandler.INSTANCE);
+        handlerMap.put(Command.MESSAGE_CALLBACK_RESPONSE.command, MessageCallBackResponseHandler.INSTANCE);
+        handlerMap.put(Command.CHANGE_STATUS_RESPONSE.command, ChangeStatusResponseHandler.INSTANCE);
     }
 
     @Override

@@ -1,5 +1,8 @@
 package com.bofa.client.util;
 
+import com.bofa.client.console.ClientCommand;
+
+import java.util.Arrays;
 import java.util.StringTokenizer;
 
 /**
@@ -22,5 +25,18 @@ public class StringTokenUtil {
 //            response[k++] = result[i];
 //        }
         return result;
+    }
+
+    public static String merge(String source, String delim) {
+        StringTokenizer tokenizer = new StringTokenizer(source, " \r\t\n" + delim);
+        StringBuilder sb = new StringBuilder();
+        while (tokenizer.hasMoreTokens()) {
+            sb.append(tokenizer.nextToken().toUpperCase());
+        }
+        return sb.toString();
+    }
+
+    public static void main(String[] args) {
+        System.out.println(ClientCommand.valueOf(merge("login", "-")));
     }
 }

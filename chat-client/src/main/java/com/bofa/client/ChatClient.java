@@ -48,7 +48,7 @@ public class ChatClient {
         String host = DEFAULT_HOST;
         int port = DEFAULT_PORT;
         if (args.length > 0 && args.length != ARG_LENGTH) {
-            ChatException.throwChatException(ChatErrorCode.Parameter_invalid, "args[0] must input host," +
+            System.out.println("args[0] must input host," +
                     " args[1] must input port");
         } else if (args.length == ARG_LENGTH) {
             host = args[0];

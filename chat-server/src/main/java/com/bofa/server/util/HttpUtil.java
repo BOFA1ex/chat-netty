@@ -2,23 +2,18 @@ package com.bofa.server.util;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.parser.Feature;
 import com.bofa.exception.ChatErrorCode;
 import com.bofa.exception.ChatException;
-import com.bofa.protocol.Packet;
 import com.bofa.protocol.command.Command;
 import com.bofa.protocol.request.AbstractRequestPacket;
 import com.bofa.protocol.request.LoginRequestPacket;
 import com.bofa.protocol.response.AbstractResponsePacket;
 import com.bofa.protocol.response.LoginResponsePacket;
 import io.netty.util.CharsetUtil;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.utils.HttpClientUtils;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -121,7 +116,6 @@ public class HttpUtil {
         try {
             t = clazz.newInstance();
             CloseableHttpResponse response = httpClient.execute(post);
-            logger.debug("HttpResponse: " + response);
             logger.debug("ResponseStatusCode: " + response.getStatusLine().getStatusCode());
             if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                 JSONObject jsonObject = JSONObject.parseObject(EntityUtils.toString(response.getEntity()));
@@ -143,7 +137,7 @@ public class HttpUtil {
                 t.setCode(String.valueOf(response.getStatusLine().getStatusCode()));
                 t.setSuccess(false);
             }
-            logger.debug("T: " + t);
+            logger.debug("Response: ", t);
         } catch (IOException | IllegalAccessException | InstantiationException e) {
             logger.error("HttpUtilError", e);
         }

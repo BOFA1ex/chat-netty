@@ -24,6 +24,15 @@ public class Session {
 
     private List<UserFriend> friends;
 
+    public Integer findFriendIdByName(String name){
+        for (UserFriend uf : friends) {
+            if (uf.getUserName().equals(name)) {
+                return uf.getUserId();
+            }
+        }
+        return null;
+    }
+
     @Override
     public String toString() {
         return "Session{" +

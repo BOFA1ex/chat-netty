@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Scanner;
 import java.util.StringJoiner;
 import java.util.StringTokenizer;
+import java.util.regex.Pattern;
 
 /**
  * @author Bofa
@@ -29,24 +30,32 @@ public enum ClientCommand {
 
     REGISTER("register", new Option("register", "注册")),
 
-    STATUS("status", new Option("status -l", "查看当前状态"), new Option("status -c [arg]", "切换当前状态 1:在线 2:离线 3:隐身")),
+    STATUSL("status", new Option("status -l", "查看当前状态")),
 
-    FRIEND("friend", new Option("friend -l", "查看当前在线好友"), new Option("friend -la", "查看所有好友"), new Option("friend -a [username]", "添加好友"), new Option("friend -r [username]", "删除好友")),
+    STATUSC("status", new Option("status -c [arg]", "切换当前状态 1:在线 2:离线 3:隐身")),
 
-    SEND("send", new Option("send -f [username]", "指定好友发送信息")),
+    FRIENDL("friend", new Option("friend -l", "查看当前在线好友")),
 
-    NOTICE("notice", new Option("notice -l", "查看通知")),
+    FRIENDLA("friend", new Option("friend -la", "查看所有好友")),
+
+    FRIENDA("friend", new Option("friend -a [username]", "添加好友")),
+
+    FRIENDR("friend", new Option("friend -r [username]", "删除好友")),
+
+    SEND("send", new Option("send [userName1, userName2, ...]", "指定好友发送信息")),
+
+    NOTICEL("notice", new Option("notice -l", "查看通知")),
 
     LOGOUT("logout", new Option("logout", "注销当前账号"));
 
-    ClientCommand(String command, Option... options) {
+    ClientCommand(String command, Option options) {
         this.command = command;
         this.options = options;
     }
 
     String command;
 
-    Option[] options;
+    Option options;
 
     static class Option {
 
@@ -65,27 +74,12 @@ public enum ClientCommand {
         }
     }
 
-//    public static void main(String[] args) {
-//        Scanner sc = new Scanner(System.in);
-////        String msg = null;
-////        while (!"exit".equals(msg = sc.nextLine())) {
-////            for (ClientCommand c : ClientCommand.values()) {
-////                if (c.command.equals(msg)) {
-////
-////                }
-////            }
-////        }
-//        while (true) {
-//            StringTokenizer tokenizer = new StringTokenizer(sc.nextLine(), " \t\n\r\f-");
-//            while (tokenizer.hasMoreElements()) {
-//                String s = tokenizer.nextToken();
-//                if ("exit".equals(s)) {
-//                    break;
-//                }
-//                ClientCommand.
-//            }
-//            tokenizer
-//        }
-//    }
-
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        Pattern pattern = Pattern.compile("\\d");
+        while (!scanner.hasNext(pattern)) {
+            System.out.println(scanner.next());
+        }
+        System.out.println("status: " + scanner.next());
+    }
 }

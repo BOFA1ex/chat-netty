@@ -1,6 +1,5 @@
 package com.bofa.protocol.request;
 
-import com.bofa.protocol.Packet;
 import com.bofa.protocol.command.Command;
 import lombok.Data;
 
@@ -8,20 +7,15 @@ import lombok.Data;
  * @author Bofa
  * @version 1.0
  * @decription com.bofa.protocol.request
- * @date 2019/4/2
+ * @date 2019/4/13
  */
 @Data
-public class LoginRequestPacket extends AbstractRequestPacket {
+public class ChangeStatusRequestPacket extends AbstractRequestPacket{
 
-    String userName;
-
-    String password;
-
-    String commonIp;
+    Integer status;
 
     @Override
     public Byte getCommand() {
-        return Command.LOGIN_REQUEST.command;
+        return Command.CHANGE_STATUS_REQUEST.command;
     }
-
 }

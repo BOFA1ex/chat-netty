@@ -43,7 +43,9 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
-        LoggerUtil.debug(logger, SessionUtil.getSession(ctx.channel()).getUser().getUserName(), "already login");
+        if (SessionUtil.hasLogin(ctx.channel())){
+            LoggerUtil.debug(logger, SessionUtil.getSession(ctx.channel()).getUser().getUserName(), "already login");
+        }
         super.handlerRemoved(ctx);
     }
 }

@@ -26,5 +26,6 @@ public class LogoutResponseHandler extends SimpleChannelInboundHandler<LogoutRes
         } else {
             PrintUtil.println(userName, "logout fail: " + logoutResponsePacket.getMessage());
         }
+        SessionUtil.signalRespOrder();
     }
 }

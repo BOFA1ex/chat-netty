@@ -2,6 +2,7 @@ package com.bofa.server.handler;
 
 import com.bofa.protocol.request.LoginRequestPacket;
 import com.bofa.protocol.response.LoginResponsePacket;
+import com.bofa.server.TaskManager;
 import com.bofa.server.service.UserSv;
 import com.bofa.server.util.LoggerUtil;
 import com.bofa.session.Session;
@@ -30,14 +31,16 @@ public class LoginRequestHandler extends SimpleChannelInboundHandler<LoginReques
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, LoginRequestPacket loginRequestPacket) throws Exception {
-        LoginResponsePacket response = UserSv.login(loginRequestPacket);
-        if (response.isSuccess()) {
-            LoggerUtil.info(logger, loginRequestPacket.getUserName(), "login success");
-            SessionUtil.bindSession(new Session(response.getUser(), response.getUserFriends()), ctx.channel());
-        } else {
-            LoggerUtil.error(logger, loginRequestPacket.getUserName(), "login fail");
-        }
-        ctx.channel().writeAndFlush(response);
+        TaskManager.execute("login", () -> {
+            LoginResponsePacket response = UserSv.login(loginRequestPacket);
+            if (response.isSuccess()) {
+                LoggerUtil.info(logger, loginRequestPacket.getUserName(), "login success");
+                SessionUtil.bindSession(new Session(response.getUser(), response.getUserFriends()), ctx.channel());
+            } else {
+                LoggerUtil.error(logger, loginRequestPacket.getUserName(), "login fail");
+            }
+            ctx.channel().writeAndFlush(response);
+        });
     }
 
     @Override

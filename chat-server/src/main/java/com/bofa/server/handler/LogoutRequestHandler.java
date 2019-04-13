@@ -3,6 +3,7 @@ package com.bofa.server.handler;
 import com.bofa.exception.ChatException;
 import com.bofa.protocol.request.LogoutRequestPacket;
 import com.bofa.protocol.response.LogoutResponsePacket;
+import com.bofa.server.TaskManager;
 import com.bofa.server.service.UserSv;
 import com.bofa.server.util.LoggerUtil;
 import com.bofa.util.SessionUtil;
@@ -25,15 +26,17 @@ public class LogoutRequestHandler extends SimpleChannelInboundHandler<LogoutRequ
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, LogoutRequestPacket requestPacket) throws Exception {
-        LogoutResponsePacket response = UserSv.logout(requestPacket);
-        String userName = SessionUtil.getSession(ctx.channel()).getUser().getUserName();
-        response.setUserName(userName);
-        if (response.isSuccess()) {
-            LoggerUtil.debug(logger,userName,"logout");
-            SessionUtil.unbindSession(ctx.channel());
-        } else {
-            logger.error(response.getMessage());
-        }
-        ctx.channel().writeAndFlush(response);
+        TaskManager.execute("logout", () -> {
+            LogoutResponsePacket response = UserSv.logout(requestPacket);
+            String userName = SessionUtil.getSession(ctx.channel()).getUser().getUserName();
+            response.setUserName(userName);
+            if (response.isSuccess()) {
+                LoggerUtil.debug(logger, userName, "logout");
+                SessionUtil.unbindSession(ctx.channel());
+            } else {
+                LoggerUtil.error(logger, userName, response.getMessage());
+            }
+            ctx.channel().writeAndFlush(response);
+        });
     }
 }
