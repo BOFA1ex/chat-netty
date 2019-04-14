@@ -22,4 +22,6 @@ public class MessageInfo {
     private Integer messageType;
 
     private String dateTime;
+
+    private String toUserName;
 }

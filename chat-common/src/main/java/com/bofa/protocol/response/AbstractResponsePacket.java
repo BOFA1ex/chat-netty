@@ -12,7 +12,7 @@ import lombok.Data;
 @Data
 public abstract class AbstractResponsePacket extends Packet {
 
-    boolean success;
+    boolean success = true;
 
     String message;
 

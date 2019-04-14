@@ -10,7 +10,10 @@ import lombok.Data;
  * @date 2019/4/13
  */
 @Data
-public class MessageCallBackResponsePacket extends AbstractResponsePacket{
+public class MessageCallBackResponsePacket extends AbstractResponsePacket {
+
+    public MessageCallBackResponsePacket() {
+    }
 
     public MessageCallBackResponsePacket(String content, String toUserName) {
         this.content = content;
@@ -23,6 +26,6 @@ public class MessageCallBackResponsePacket extends AbstractResponsePacket{
 
     @Override
     public Byte getCommand() {
-        return Command.NULL.command;
+        return Command.MESSAGE_CALLBACK_RESPONSE.command;
     }
 }

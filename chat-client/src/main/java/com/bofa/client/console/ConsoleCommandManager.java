@@ -2,16 +2,12 @@ package com.bofa.client.console;
 
 import com.bofa.attribute.MessageType;
 import com.bofa.attribute.UserStatus;
-import com.bofa.client.util.ConsoleBuilder;
-import com.bofa.client.util.PrintUtil;
-import com.bofa.client.util.StringTokenUtil;
 import com.bofa.entity.MessageInfo;
 import com.bofa.entity.User;
 import com.bofa.exception.ChatException;
 import com.bofa.protocol.request.*;
 import com.bofa.session.Session;
-import com.bofa.util.LocalDateTimeUtil;
-import com.bofa.util.SessionUtil;
+import com.bofa.util.*;
 import io.netty.channel.Channel;
 import org.apache.commons.lang3.StringUtils;
 
@@ -31,19 +27,19 @@ public class ConsoleCommandManager {
     private static final ConsoleCommand HELP = new HelpCommandHandler();
 
     static {
-        commandHashMap.put(ClientCommand.LOGIN, new LoginCommandHandler());
-        commandHashMap.put(ClientCommand.REGISTER, new RegisterCommandHandler());
-        commandHashMap.put(ClientCommand.HELP, new HelpCommandHandler());
-        commandHashMap.put(ClientCommand.LOGOUT, new LogoutCommandHandler());
-        commandHashMap.put(ClientCommand.SEND, new MessageCommandHandler());
-        commandHashMap.put(ClientCommand.STATUSL, new StatusLCommandHandler());
-        commandHashMap.put(ClientCommand.STATUSC, new StatusCCommandHandler());
+        commandHashMap.put(ClientCommand.LOGIN, LoginCommandHandler.INSTANCE);
+        commandHashMap.put(ClientCommand.REGISTER, RegisterCommandHandler.INSTANCE);
+        commandHashMap.put(ClientCommand.HELP, HelpCommandHandler.INSTANCE);
+        commandHashMap.put(ClientCommand.LOGOUT, LogoutCommandHandler.INSTANCE);
+        commandHashMap.put(ClientCommand.SEND, MessageCommandHandler.INSTANCE);
+        commandHashMap.put(ClientCommand.STATUS, StatusLCommandHandler.INSTANCE);
+        commandHashMap.put(ClientCommand.STATUSH, StatusHCommandHandler.INSTANCE);
+        commandHashMap.put(ClientCommand.STATUSL, StatusLCommandHandler.INSTANCE);
+        commandHashMap.put(ClientCommand.STATUSC, StatusCCommandHandler.INSTANCE);
     }
 
     public static void execute(Channel channel, Scanner scanner) {
-        System.out.print("input command: ");
         String command = scanner.nextLine();
-
         if (StringUtils.isEmpty(command)) {
             HELP.commandHandle(channel, scanner);
             return;
@@ -66,12 +62,22 @@ public class ConsoleCommandManager {
      * @see com.bofa.client.console.ClientCommand
      */
     static class HelpCommandHandler implements ConsoleCommand {
+
+        static final HelpCommandHandler INSTANCE = new HelpCommandHandler();
+
         @Override
         public ConsoleCommand commandHandle(Channel channel, Scanner scanner) {
             for (ClientCommand c : ClientCommand.values()) {
-                System.out.println(c.options);
+                if (c.options.length != 0){
+                    System.out.println(Arrays.toString(c.options));
+                }
             }
             return this;
+        }
+
+        @Override
+        public void waitingForResp(ClientCommand cmd, int timeout) {
+
         }
     }
 
@@ -81,6 +87,8 @@ public class ConsoleCommandManager {
      * @see com.bofa.client.console.ClientCommand
      */
     static class LoginCommandHandler implements ConsoleCommand {
+
+        static final LoginCommandHandler INSTANCE = new LoginCommandHandler();
 
         @Override
         public ConsoleCommand commandHandle(Channel channel, Scanner scanner) {
@@ -107,6 +115,8 @@ public class ConsoleCommandManager {
      */
     static class RegisterCommandHandler implements ConsoleCommand {
 
+        static final RegisterCommandHandler INSTANCE = new RegisterCommandHandler();
+
         @Override
         public ConsoleCommand commandHandle(Channel channel, Scanner scanner) {
             String[] source = inputUserNameAndPwd(scanner);
@@ -125,6 +135,9 @@ public class ConsoleCommandManager {
      * @see com.bofa.client.console.ClientCommand
      */
     static class LogoutCommandHandler implements ConsoleCommand {
+
+        static final LogoutCommandHandler INSTANCE = new LogoutCommandHandler();
+
         @Override
         public ConsoleCommand commandHandle(Channel channel, Scanner scanner) {
             if (!SessionUtil.hasLogin(channel)) {
@@ -134,6 +147,8 @@ public class ConsoleCommandManager {
             LogoutRequestPacket requestPacket = new LogoutRequestPacket();
             requestPacket.setUserId(user.getUserId());
             requestPacket.setStatus(UserStatus.OFFLINE.status);
+            InetSocketAddress address = (InetSocketAddress) channel.localAddress();
+            requestPacket.setCommonIp(address.getHostString());
             channel.writeAndFlush(requestPacket);
             return this;
         }
@@ -145,12 +160,15 @@ public class ConsoleCommandManager {
      * @see com.bofa.client.console.ClientCommand
      */
     static class MessageCommandHandler implements ConsoleCommand {
+
+        static final MessageCommandHandler INSTANCE = new MessageCommandHandler();
+
         @Override
         public ConsoleCommand commandHandle(Channel channel, Scanner scanner) {
             if (!SessionUtil.hasLogin(channel)) {
                 ChatException.throwChatException("发送失败，当前没有登录的账号");
             }
-            System.out.print("input your friendNames: ");
+            System.out.print("input your friendNames[one or more]: ");
             String[] friendNames = StringTokenUtil.split(scanner.nextLine(), " ,\r\t\n");
             System.out.print("input your message: ");
             String content = scanner.nextLine();
@@ -168,6 +186,7 @@ public class ConsoleCommandManager {
                 messageInfo.setDateTime(dateTime);
                 messageInfo.setFromUserId(userId);
                 messageInfo.setToUserId(userFriendId);
+                messageInfo.setToUserName(name);
                 messageInfo.setMessageType(MessageType.TEXT);
                 requestPacket.setUserIds(new ArrayList<>(Arrays.asList(userId, userFriendId)));
                 requestPacket.setMessageInfo(messageInfo);
@@ -188,6 +207,8 @@ public class ConsoleCommandManager {
      * @see com.bofa.client.console.ClientCommand
      */
     static class StatusLCommandHandler implements ConsoleCommand {
+
+        static final StatusLCommandHandler INSTANCE = new StatusLCommandHandler();
 
         @Override
         public ConsoleCommand commandHandle(Channel channel, Scanner scanner) {
@@ -213,19 +234,46 @@ public class ConsoleCommandManager {
      */
     static class StatusCCommandHandler implements ConsoleCommand {
 
+        static final StatusCCommandHandler INSTANCE = new StatusCCommandHandler();
+
         @Override
         public ConsoleCommand commandHandle(Channel channel, Scanner scanner) {
+
             if (!SessionUtil.hasLogin(channel)) {
                 ChatException.throwChatException("切换用户状态失败，当前没有登录的账号");
             }
             ChangeStatusRequestPacket requestPacket = new ChangeStatusRequestPacket();
-            int status = Integer.valueOf(scanner.nextLine());
+
+            System.out.print("input status: ");
+            int status = 0;
+            try {
+                status = Integer.valueOf(scanner.nextLine());
+            } catch (Exception e) {
+                ChatException.throwChatException("status 不符合规范 参见UserStatus" + Arrays.toString(UserStatus.values()));
+            }
             if (StringUtils.isEmpty(UserStatus.findByStatus(status))) {
                 ChatException.throwChatException("status 不符合规范 参见UserStatus" + Arrays.toString(UserStatus.values()));
             }
+
             requestPacket.setStatus(status);
             requestPacket.setUserId(SessionUtil.getSession(channel).getUser().getUserId());
             channel.writeAndFlush(requestPacket);
+            return this;
+        }
+
+        @Override
+        public void waitingForResp(ClientCommand cmd, int timeout) {
+
+        }
+    }
+
+    static class StatusHCommandHandler implements ConsoleCommand {
+
+        static final StatusHCommandHandler INSTANCE = new StatusHCommandHandler();
+
+        @Override
+        public ConsoleCommand commandHandle(Channel channel, Scanner scanner) {
+            System.out.println(Arrays.toString(ClientCommand.STATUS.options));
             return this;
         }
 

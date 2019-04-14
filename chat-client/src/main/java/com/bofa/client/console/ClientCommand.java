@@ -30,32 +30,40 @@ public enum ClientCommand {
 
     REGISTER("register", new Option("register", "注册")),
 
-    STATUSL("status", new Option("status -l", "查看当前状态")),
+    STATUS("status", new Option("status -l", "查看当前状态"), new Option("status -c [arg]", "切换当前状态 1:在线 2:离线 3:隐身")),
 
-    STATUSC("status", new Option("status -c [arg]", "切换当前状态 1:在线 2:离线 3:隐身")),
+    STATUSH("status"),
 
-    FRIENDL("friend", new Option("friend -l", "查看当前在线好友")),
+    STATUSL("status"),
 
-    FRIENDLA("friend", new Option("friend -la", "查看所有好友")),
+    STATUSC("status"),
 
-    FRIENDA("friend", new Option("friend -a [username]", "添加好友")),
+    FRIEND("friend", new Option("friend -l", "查看当前在线好友"), new Option("friend -la", "查看所有好友"), new Option("friend -a [username]", "添加好友"), new Option("friend -r [username]", "删除好友")),
 
-    FRIENDR("friend", new Option("friend -r [username]", "删除好友")),
+    FRIENDL("friend"),
+
+    FRIENDLA("friend"),
+
+    FRIENDA("friend"),
+
+    FRIENDR("friend"),
 
     SEND("send", new Option("send [userName1, userName2, ...]", "指定好友发送信息")),
 
-    NOTICEL("notice", new Option("notice -l", "查看通知")),
+    NOTICE("notice", new Option("notice -l", "查看通知")),
+
+    NOTICEL("notice"),
 
     LOGOUT("logout", new Option("logout", "注销当前账号"));
 
-    ClientCommand(String command, Option options) {
+    ClientCommand(String command, Option... options) {
         this.command = command;
         this.options = options;
     }
 
     String command;
 
-    Option options;
+    Option[] options;
 
     static class Option {
 
@@ -73,13 +81,12 @@ public enum ClientCommand {
             return option + " " + comment;
         }
     }
-
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        Pattern pattern = Pattern.compile("\\d");
-        while (!scanner.hasNext(pattern)) {
-            System.out.println(scanner.next());
-        }
-        System.out.println("status: " + scanner.next());
-    }
+//
+//    public static void main(String[] args) {
+//        for (ClientCommand command : ClientCommand.values()) {
+//            if (command.options.length != 0){
+//                System.out.println(Arrays.toString(command.options));
+//            }
+//        }
+//    }
 }

@@ -30,9 +30,8 @@ public class ChangeStatusRequestHandler extends SimpleChannelInboundHandler<Chan
             Integer status = requestPacket.getStatus();
             String userName = SessionUtil.getSession(ctx.channel()).getUser().getUserName();
             ChangeStatusResponsePacket response = UserSv.changeStatus(requestPacket);
-            response.setUserName(userName);
+            response.setStatus(status);
             if (response.isSuccess()) {
-                String message = null;
                 if (status == UserStatus.OFFLINE.status) {
                     LoggerUtil.debug(logger, userName, "logout");
                     SessionUtil.unbindSession(ctx.channel());
@@ -42,13 +41,10 @@ public class ChangeStatusRequestHandler extends SimpleChannelInboundHandler<Chan
                     ctx.channel().writeAndFlush(logoutResponsePacket);
                     return;
                 } else if (status == UserStatus.VISIBLE.status) {
-                    message = "changeStatus -> " + UserStatus.VISIBLE.comment;
-                    LoggerUtil.debug(logger, userName, message);
+                    LoggerUtil.debug(logger, userName, "changeStatus -> " + UserStatus.VISIBLE.comment);
                 } else if (status == UserStatus.ONLINE.status) {
-                    message = "changeStatus -> " + UserStatus.ONLINE.comment;
-                    LoggerUtil.debug(logger, userName, message);
+                    LoggerUtil.debug(logger, userName, "changeStatus -> " + UserStatus.ONLINE.comment);
                 }
-                response.setMessage(message);
                 ctx.channel().writeAndFlush(response);
             } else {
                 LoggerUtil.error(logger, userName, response.getMessage());

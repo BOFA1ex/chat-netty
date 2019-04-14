@@ -15,6 +15,8 @@ public class LogoutRequestPacket extends AbstractRequestPacket {
 
     Integer status;
 
+    String commonIp;
+
     @Override
     public Byte getCommand() {
         return Command.LOGOUT_REQUEST.command;

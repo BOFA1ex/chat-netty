@@ -1,8 +1,7 @@
 package com.bofa.client.handler;
 
-import com.bofa.client.util.PrintUtil;
-import com.bofa.exception.ChatException;
 import com.bofa.protocol.response.LogoutResponsePacket;
+import com.bofa.util.PrintUtil;
 import com.bofa.util.SessionUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;

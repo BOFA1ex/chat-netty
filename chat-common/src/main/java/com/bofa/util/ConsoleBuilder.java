@@ -1,4 +1,4 @@
-package com.bofa.client.util;
+package com.bofa.util;
 
 import java.io.Console;
 

@@ -12,7 +12,7 @@ import lombok.Data;
 @Data
 public class ChangeStatusResponsePacket extends AbstractResponsePacket{
 
-    String userName;
+    Integer status;
 
     @Override
     public Byte getCommand() {

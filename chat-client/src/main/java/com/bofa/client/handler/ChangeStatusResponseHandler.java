@@ -1,7 +1,9 @@
 package com.bofa.client.handler;
 
-import com.bofa.client.util.PrintUtil;
+import com.bofa.entity.User;
 import com.bofa.protocol.response.ChangeStatusResponsePacket;
+import com.bofa.util.PrintUtil;
+import com.bofa.util.SessionUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
@@ -17,11 +19,11 @@ public class ChangeStatusResponseHandler extends SimpleChannelInboundHandler<Cha
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ChangeStatusResponsePacket responsePacket) throws Exception {
-        String userName = responsePacket.getUserName();
+        User user = SessionUtil.getSession(ctx.channel()).getUser();
         if (responsePacket.isSuccess()) {
-            PrintUtil.println(userName, responsePacket.getMessage());
-        }else {
-            PrintUtil.println(userName, responsePacket.getMessage());
+            user.setStatus(responsePacket.getStatus());
+        } else {
+            PrintUtil.println(user.getUserName(), responsePacket.getMessage());
         }
     }
 }

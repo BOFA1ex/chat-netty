@@ -1,6 +1,6 @@
 package com.bofa.client.console;
 
-import com.bofa.client.util.PrintUtil;
+import com.bofa.util.PrintUtil;
 import com.bofa.util.SessionUtil;
 import io.netty.channel.Channel;
 

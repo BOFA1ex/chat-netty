@@ -94,6 +94,7 @@ public class ChatClient {
 
     private static void startConsoleThread(Channel channel) {
         Scanner sc = new Scanner(System.in);
+        System.out.print("input command: ");
         SINGLE_CONSOLE_POOL.execute(() -> {
             while (true) {
                 try {

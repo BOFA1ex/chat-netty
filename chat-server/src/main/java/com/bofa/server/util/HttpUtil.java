@@ -126,7 +126,6 @@ public class HttpUtil {
                     if (data != null) {
                         t = JSONObject.toJavaObject(data, clazz);
                     }
-                    t.setSuccess(true);
                 } else {
                     t.setCode((String) jsonObject.get(CODE));
                     t.setMessage((String) jsonObject.get(MESSAGE));

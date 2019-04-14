@@ -13,4 +13,5 @@ public class UserFriend extends User{
 
     private String lastChatTime;
 
+    private String remark;
 }

@@ -58,6 +58,8 @@ public class PacketCodeC {
         byteBuf.writeInt(bytes.length);
         byteBuf.writeBytes(bytes);
 
+        System.out.println(packet);
+
         return byteBuf;
     }
 
@@ -79,13 +81,13 @@ public class PacketCodeC {
         Serializer serializer = getSerializer(serializeAlgorithm);
         Class<? extends Packet> requestType = getRequestType(command);
         if (requestType != null && serializer != null) {
+            System.out.println(requestType);
             return serializer.deserialize(requestType, bytes);
         }
         return null;
     }
 
     private Serializer getSerializer(byte serializeAlgorithm) {
-
         return serializerMap.get(serializeAlgorithm);
     }
 

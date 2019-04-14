@@ -44,7 +44,11 @@ public class SessionUtil {
     }
 
     public static Session getSession(Integer userId) {
-        return getSession(getChannel(userId));
+        Channel channel = getChannel(userId);
+        if (channel != null){
+            return getSession(channel);
+        }
+        return null;
     }
 
     public static Channel getChannel(Integer userId) {
@@ -52,12 +56,11 @@ public class SessionUtil {
     }
 
     public static void waitingForResp(long timeout, TimeUnit unit) throws InterruptedException, TimeoutException, BrokenBarrierException {
-        System.out.println("[" + currentThread().getName() + "] waitingForResp");
+        PrintUtil.println("waiting for response");
         respOrder.await(timeout, unit);
     }
 
     public static void signalRespOrder() throws BrokenBarrierException, InterruptedException {
-        System.out.println("[" + currentThread().getName() + "] signalRespOrder");
         if (!respOrder.isBroken() && respOrder.getNumberWaiting() == 1){
             respOrder.await();
             respOrder.reset();
@@ -65,13 +68,9 @@ public class SessionUtil {
     }
 
     public static void resetRespOrder() {
-        System.out.println("[" + currentThread().getName() + "] resetRespOrder");
         if (respOrder.isBroken()){
             respOrder.reset();
         }
     }
 
-    private static boolean isBorkenRespOrder(){
-        return respOrder.isBroken();
-    }
 }

@@ -1,7 +1,7 @@
 package com.bofa.client.handler;
 
-import com.bofa.client.util.PrintUtil;
 import com.bofa.protocol.response.MessageCallBackResponsePacket;
+import com.bofa.util.PrintUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
@@ -17,6 +17,10 @@ public class MessageCallBackResponseHandler extends SimpleChannelInboundHandler<
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, MessageCallBackResponsePacket responsePacket) throws Exception {
-        PrintUtil.println(responsePacket.getToUserName(), "read your message [" + responsePacket.getContent() + "]");
+        if (responsePacket.isSuccess()) {
+            PrintUtil.println(responsePacket.getToUserName(), "read your message [" + responsePacket.getContent() + "]");
+        } else {
+            PrintUtil.println(responsePacket.getToUserName(), responsePacket.getMessage());
+        }
     }
 }

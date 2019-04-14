@@ -12,6 +12,9 @@ import lombok.Data;
 @Data
 public class MessageCallBackRequestPacket extends AbstractRequestPacket{
 
+    public MessageCallBackRequestPacket() {
+    }
+
     public MessageCallBackRequestPacket(Integer fromUserId, Integer toUserId, String content) {
         this.fromUserId = fromUserId;
         this.toUserId = toUserId;
@@ -26,6 +29,6 @@ public class MessageCallBackRequestPacket extends AbstractRequestPacket{
 
     @Override
     public Byte getCommand() {
-        return Command.NULL.command;
+        return Command.MESSAGE_CALLBACK_REQUEST.command;
     }
 }

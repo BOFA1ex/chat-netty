@@ -1,9 +1,9 @@
 package com.bofa.client.handler;
 
-import com.bofa.client.util.PrintUtil;
 import com.bofa.entity.User;
 import com.bofa.protocol.response.RegisterResponsePacket;
 import com.bofa.session.Session;
+import com.bofa.util.PrintUtil;
 import com.bofa.util.SessionUtil;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;

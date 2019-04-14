@@ -1,9 +1,10 @@
 package com.bofa.client.handler;
 
-import com.bofa.client.util.PrintUtil;
 import com.bofa.entity.MessageInfo;
 import com.bofa.protocol.request.MessageCallBackRequestPacket;
 import com.bofa.protocol.response.MessageResponsePacket;
+import com.bofa.util.PrintUtil;
+import com.bofa.util.SessionUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
@@ -24,7 +25,7 @@ public class MessageResponseHandler extends SimpleChannelInboundHandler<MessageR
         /**
          * denote client get the message which the other client sent.
          */
-        ctx.channel().writeAndFlush(new MessageCallBackRequestPacket(
+        ctx.writeAndFlush(new MessageCallBackRequestPacket(
                 messageInfo.getFromUserId(), messageInfo.getToUserId(), messageInfo.getContent()));
     }
 }

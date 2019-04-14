@@ -15,6 +15,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -60,20 +61,22 @@ public class ChatServerHandler extends SimpleChannelInboundHandler<AbstractReque
         /**
          * 如果未正常注销
          */
-        if (SessionUtil.hasLogin(ctx.channel())){
+        if (SessionUtil.hasLogin(ctx.channel())) {
             User user = SessionUtil.getSession(ctx.channel()).getUser();
             LoggerUtil.debug(logger, user.getUserName(), "force logout");
-            TaskManager.execute(SessionUtil.getSession(ctx.channel()) + "force logout", forceLogout(user.getUserId()));
+            String commonIp = ((InetSocketAddress) ctx.channel().remoteAddress()).getHostString();
+            TaskManager.execute(SessionUtil.getSession(ctx.channel()).getUser().getUserName() + "force logout", forceLogout(user.getUserId(), commonIp));
             SessionUtil.unbindSession(ctx.channel());
         }
         super.channelInactive(ctx);
     }
 
-    private Runnable forceLogout(Integer userId) {
+    private Runnable forceLogout(Integer userId, String commonIp) {
         return () -> {
             LogoutRequestPacket requestPacket = new LogoutRequestPacket();
             requestPacket.setUserId(userId);
             requestPacket.setStatus(UserStatus.OFFLINE.status);
+            requestPacket.setCommonIp(commonIp);
             UserSv.logout(requestPacket);
         };
     }

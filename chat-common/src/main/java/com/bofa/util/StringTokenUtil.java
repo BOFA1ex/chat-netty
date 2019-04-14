@@ -1,8 +1,5 @@
-package com.bofa.client.util;
+package com.bofa.util;
 
-import com.bofa.client.console.ClientCommand;
-
-import java.util.Arrays;
 import java.util.StringTokenizer;
 
 /**
@@ -36,7 +33,4 @@ public class StringTokenUtil {
         return sb.toString();
     }
 
-    public static void main(String[] args) {
-        System.out.println(ClientCommand.valueOf(merge("login", "-")));
-    }
 }
