@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <property name="logPath" value="~/.h2/logs"/>
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%red([%d{yyyy-MM-dd HH:mm:ss}]) %boldGreen([%thread]) %highlight(%-5level) %black(%logger{36}) -
+                %white(%msg%n)
+            </pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+    </appender>
+    <appender name="h2" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${logPath}/logback-h2-%d{yyyy-MM-dd}.log</fileNamePattern>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <charset>utf-8</charset>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>DEBUG</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+    <!--log4jdbc -->
+    <logger name="org.springframework" level="OFF"/>
+
+    <logger name="io.netty" level="INFO"/>
+
+    <logger name="org.apache.ibatis" level="OFF"/>
+    <logger name="org.mybatis" level="OFF"/>
+    <logger name="org.springframework.jmx" level="OFF"/>
+
+    <logger name="com.alibaba" level="OFF"/>
+
+    <logger name="org.jboss" level="OFF"/>
+
+    <logger name="org.flywaydb.core" level="OFF" additivity="false"/>
+
+    <logger name="org.h2.jdbc" additivity="false">
+        <appender-ref ref="h2"/>
+    </logger>
+
+
+    <root level="DEBUG">
+        <appender-ref ref="console"/>
+    </root>
+
+</configuration>

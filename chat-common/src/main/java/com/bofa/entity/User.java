@@ -1,6 +1,10 @@
 package com.bofa.entity;
 
+import com.ai.nbs.common.spring.dao.entity.MybatisEntity;
+import com.bofa.util.LocalDateTimeUtil;
 import lombok.Data;
+
+import java.io.Serializable;
 
 /**
  * @author Bofa
@@ -9,7 +13,7 @@ import lombok.Data;
  * @date 2019/4/10
  */
 @Data
-public class User {
+public class User extends MybatisEntity implements Serializable {
 
     private Integer userId;
 

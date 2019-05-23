@@ -1,5 +1,6 @@
 package com.bofa.protocol;
 
+import com.ai.nbs.common.util.io.FileUtil;
 import com.alibaba.fastjson.parser.deserializer.OptionalCodec;
 import com.bofa.protocol.command.Command;
 import com.bofa.protocol.request.*;
@@ -7,7 +8,13 @@ import com.bofa.protocol.response.*;
 import com.bofa.serialize.Serializer;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -23,6 +30,7 @@ public class PacketCodeC {
 
     public static final int MAGIC_NUMBER = 0x12345678;
     public static final PacketCodeC INSTANCE = new PacketCodeC();
+    static final Logger logger = LoggerFactory.getLogger(PacketCodeC.class);
 
     private final Map<Byte, Class<? extends Packet>> packetTypeMap;
     private final Map<Byte, Serializer> serializerMap;
@@ -31,7 +39,6 @@ public class PacketCodeC {
         packetTypeMap = new HashMap<>();
         serializerMap = new HashMap<>();
         serializerMap.put(Serializer.DEFAULT.getSerializerAlgorithm(), Serializer.DEFAULT);
-
         packetTypeMap.put(Command.LOGIN_REQUEST.command, LoginRequestPacket.class);
         packetTypeMap.put(Command.LOGIN_RESPONSE.command, LoginResponsePacket.class);
         packetTypeMap.put(Command.REGISTER_REQUEST.command, RegisterRequestPacket.class);
@@ -44,6 +51,15 @@ public class PacketCodeC {
         packetTypeMap.put(Command.MESSAGE_CALLBACK_RESPONSE.command, MessageCallBackResponsePacket.class);
         packetTypeMap.put(Command.CHANGE_STATUS_REQUEST.command, ChangeStatusRequestPacket.class);
         packetTypeMap.put(Command.CHANGE_STATUS_RESPONSE.command, ChangeStatusResponsePacket.class);
+        packetTypeMap.put(Command.FRIENDA_REQUEST.command, FriendARequestPacket.class);
+        packetTypeMap.put(Command.FRIENDA_RESPONSE.command, FriendAResponsePacket.class);
+        packetTypeMap.put(Command.FRIENDA_CALLBACK_REQUEST.command, FriendACallBackRequestPacket.class);
+        packetTypeMap.put(Command.FRIENDA_CALLBACK_RESPONSE.command, FriendACallBackResponsePacket.class);
+        packetTypeMap.put(Command.NOTICE_RESPONSE.command, NoticeResponsePacket.class);
+        packetTypeMap.put(Command.CLIENT_CLOSE.command, ClientCloseRequestPacket.class);
+        packetTypeMap.values().forEach(value -> {
+            System.out.println("packetCodeC register class: " + value);
+        });
     }
 
     public ByteBuf encode(ByteBuf byteBuf, Packet packet) {
@@ -57,8 +73,6 @@ public class PacketCodeC {
         byteBuf.writeByte(packet.getCommand());
         byteBuf.writeInt(bytes.length);
         byteBuf.writeBytes(bytes);
-
-        System.out.println(packet);
 
         return byteBuf;
     }
@@ -81,7 +95,6 @@ public class PacketCodeC {
         Serializer serializer = getSerializer(serializeAlgorithm);
         Class<? extends Packet> requestType = getRequestType(command);
         if (requestType != null && serializer != null) {
-            System.out.println(requestType);
             return serializer.deserialize(requestType, bytes);
         }
         return null;

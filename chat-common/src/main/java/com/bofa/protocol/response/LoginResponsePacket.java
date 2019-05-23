@@ -2,7 +2,7 @@ package com.bofa.protocol.response;
 
 import com.bofa.entity.User;
 import com.bofa.entity.UserFriend;
-import com.bofa.protocol.Packet;
+import com.bofa.entity.UserNotice;
 import com.bofa.protocol.command.Command;
 import lombok.Data;
 
@@ -20,6 +20,8 @@ public class LoginResponsePacket extends AbstractResponsePacket {
     private User user;
 
     private List<UserFriend> userFriends;
+
+    private List<UserNotice> userNotices;
 
     @Override
     public Byte getCommand() {

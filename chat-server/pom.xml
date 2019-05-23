@@ -33,4 +33,78 @@
             <version>${logback.version}</version>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>0.4.13</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                    </execution>
+                    <!--<execution>-->
+                    <!--<id>tag-image</id>-->
+                    <!--<phase>package</phase>-->
+                    <!--<goals>-->
+                    <!--<goal>tag</goal>-->
+                    <!--</goals>-->
+                    <!--<configuration>-->
+                    <!--<image>${project.artifactId}:${project.version}</image>-->
+                    <!--<newName>${docker.repostory}/${docker.registry.name}/${project.artifactId}:${project.version}</newName>-->
+                    <!--</configuration>-->
+                    <!--</execution>-->
+                    <!--<execution>-->
+                    <!--<id>push-image</id>-->
+                    <!--<phase>deploy</phase>-->
+                    <!--<goals>-->
+                    <!--<goal>push</goal>-->
+                    <!--</goals>-->
+                    <!--<configuration>-->
+                    <!--<imageName>${docker.repostory}/${docker.registry.name}/${project.artifactId}:${project.version}</imageName>-->
+                    <!--</configuration>-->
+                    <!--</execution>-->
+                </executions>
+                <configuration>
+                    <!-- 登录私人docker仓库的配置 -->
+                    <!-- docker 私服地址 -->
+                    <!--<serverId>${docker.server.id}</serverId>-->
+                    <!-- docker 服务地址 -->
+                    <dockerHost>http://${docker.host}</dockerHost>
+                    <!--<registryUrl>${docker.repostory}</registryUrl>-->
+                    <!--<pushImage>true</pushImage>-->
+                    <dockerDirectory>${project.basedir}/src/main/resources/</dockerDirectory>
+                    <imageName>
+                        <!--${docker.repostory}/-->
+                        ${docker.registry.name}/${project.artifactId}:${project.version}
+                    </imageName>
+                    <imageTags>
+                        <!--docker的tag为项目版本号、latest-->
+                        <imageTag>${project.version}</imageTag>
+                        <imageTag>latest</imageTag>
+                    </imageTags>
+                    <!--<volumes><volume></volume></volumes>-->
+                    <resources>
+                        <resource>
+                            <targetPath>/</targetPath>
+                            <directory>${project.build.directory}</directory>
+                            <include>${project.build.finalName}.jar</include>
+                        </resource>
+                        <!--<resource>-->
+                        <!--<directory>src/main/resources/</directory>-->
+                        <!--<filtering>true</filtering>-->
+                        <!--<includes>-->
+                        <!--<include>**/Dockerfile</include>-->
+                        <!--</includes>-->
+                        <!--<targetPath>../docker</targetPath>-->
+                        <!--</resource>-->
+                    </resources>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

@@ -1,6 +1,6 @@
 package com.bofa.protocol.response;
 
-import com.bofa.entity.MessageInfo;
+import com.bofa.entity.UserMessage;
 import com.bofa.protocol.command.Command;
 import lombok.Data;
 
@@ -13,7 +13,7 @@ import lombok.Data;
 @Data
 public class MessageResponsePacket extends AbstractResponsePacket{
 
-    MessageInfo messageInfo;
+    UserMessage userMessage;
 
     String fromUserName;
 

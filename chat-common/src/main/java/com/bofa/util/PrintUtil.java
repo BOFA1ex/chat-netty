@@ -30,4 +30,5 @@ public class PrintUtil {
     public static void println(String eventMessage) {
         System.out.println(LocalDateTimeUtil.now() + " " + eventMessage);
     }
+
 }

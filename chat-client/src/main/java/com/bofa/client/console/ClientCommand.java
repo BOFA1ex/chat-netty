@@ -3,10 +3,7 @@ package com.bofa.client.console;
 import com.bofa.protocol.command.Command;
 import lombok.Data;
 
-import java.util.Arrays;
-import java.util.Scanner;
-import java.util.StringJoiner;
-import java.util.StringTokenizer;
+import java.util.*;
 import java.util.regex.Pattern;
 
 /**
@@ -38,7 +35,19 @@ public enum ClientCommand {
 
     STATUSC("status"),
 
-    FRIEND("friend", new Option("friend -l", "查看当前在线好友"), new Option("friend -la", "查看所有好友"), new Option("friend -a [username]", "添加好友"), new Option("friend -r [username]", "删除好友")),
+    FRIEND("friend", new Option("friend", "查看指定好友信息(最近聊天时间，备注，状态)"), new
+
+            Option("friend -f [userId or regex match userName]", "查找好友"), new
+
+            Option("friend -l", "查看当前在线好友"), new
+
+            Option("friend -la", "查看所有好友"), new
+
+            Option("friend -a [username]", "添加好友"), new
+
+            Option("friend -c [username]", "修改与好友的关系(对其隐身或者删除好友关系)"), new
+
+            Option("friend -rc [username]", "修改好友备注")),
 
     FRIENDL("friend"),
 
@@ -46,13 +55,23 @@ public enum ClientCommand {
 
     FRIENDA("friend"),
 
-    FRIENDR("friend"),
+    FRIENDC("friend"),
+
+    FRIENDRC("friend"),
+
+    FRIENDF("friend"),
 
     SEND("send", new Option("send [userName1, userName2, ...]", "指定好友发送信息")),
 
-    NOTICE("notice", new Option("notice -l", "查看通知")),
+    MESSAGE("message", new Option("message [userName]", "显示与该好友的聊天记录")),
+
+    GROUP_MESSAGE("group message", new Option("group message [groupName]", "显示该群聊的聊天记录")),
+
+    NOTICE("notice", new Option("notice -l", "查看未读通知"), new Option("notice -la", "查看所有通知")),
 
     NOTICEL("notice"),
+
+    NOTICELA("notice"),
 
     LOGOUT("logout", new Option("logout", "注销当前账号"));
 
@@ -64,6 +83,10 @@ public enum ClientCommand {
     String command;
 
     Option[] options;
+
+    public Option[] getOptions() {
+        return options;
+    }
 
     static class Option {
 
@@ -81,12 +104,31 @@ public enum ClientCommand {
             return option + " " + comment;
         }
     }
-//
-//    public static void main(String[] args) {
-//        for (ClientCommand command : ClientCommand.values()) {
-//            if (command.options.length != 0){
-//                System.out.println(Arrays.toString(command.options));
-//            }
-//        }
-//    }
+
+
+    public static String returnAllCommand() {
+        StringBuilder sb = new StringBuilder();
+        for (ClientCommand c : ClientCommand.values()) {
+            int k = 0;
+            boolean flag = false;
+            for (Option option : c.options) {
+                sb.append("[");
+                sb.append(option);
+                sb.append("]").append(" ");
+                if (++k % 2 == 0) {
+                    sb.append("\n");
+                    flag = true;
+                }
+            }
+            if (c.options.length != 0 && !flag) {
+                sb.append("\n");
+            }
+        }
+        return sb.toString();
+    }
+
+    public static void main(String[] args) {
+        System.out.println(returnAllCommand());
+    }
+
 }

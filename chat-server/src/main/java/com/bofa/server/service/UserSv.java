@@ -1,15 +1,9 @@
 package com.bofa.server.service;
 
 import com.bofa.entity.User;
-import com.bofa.exception.ChatErrorCode;
-import com.bofa.exception.ChatException;
 import com.bofa.protocol.command.Command;
 import com.bofa.protocol.request.*;
 import com.bofa.protocol.response.*;
-import com.bofa.server.util.HttpUtil;
-
-import java.util.function.BiFunction;
-import java.util.function.Function;
 
 /**
  * @author Bofa
@@ -20,7 +14,13 @@ import java.util.function.Function;
 public class UserSv extends BaseSv {
 
     public static LoginResponsePacket login(LoginRequestPacket request) {
-        return post(Command.LOGIN_REQUEST.url, request, LoginResponsePacket.class);
+        LoginResponsePacket response = post(Command.LOGIN_REQUEST.url, request, LoginResponsePacket.class);
+        if (!response.isSuccess()){
+            User user = new User();
+            user.setUserName(request.getUserName());
+            response.setUser(user);
+        }
+        return response;
     }
 
     public static RegisterResponsePacket register(RegisterRequestPacket request) {
@@ -31,12 +31,7 @@ public class UserSv extends BaseSv {
         return post(Command.LOGOUT_REQUEST.url, request, LogoutResponsePacket.class);
     }
 
-    public static MessageResponsePacket message(MessageRequestPacket request) {
-        return post(Command.MESSAGE_REQUEST.url, request, MessageResponsePacket.class);
-    }
-
     public static ChangeStatusResponsePacket changeStatus(ChangeStatusRequestPacket request) {
         return post(Command.CHANGE_STATUS_REQUEST.url, request, ChangeStatusResponsePacket.class);
     }
-
 }

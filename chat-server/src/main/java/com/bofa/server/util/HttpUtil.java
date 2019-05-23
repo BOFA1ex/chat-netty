@@ -11,9 +11,11 @@ import com.bofa.protocol.response.AbstractResponsePacket;
 import com.bofa.protocol.response.LoginResponsePacket;
 import io.netty.util.CharsetUtil;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -43,10 +45,6 @@ public class HttpUtil {
 
     private static final String DEFAULT_BASE_URL = "http://localhost:8088";
 
-    private static final String CODE_SUCCESS = "200";
-
-    private static final String CODE = "code";
-
     private static final String MESSAGE = "message";
 
     private static final String DATA = "data";
@@ -66,30 +64,18 @@ public class HttpUtil {
      * @param <T>    T
      * @return
      */
-    public static <T> T getData(String url, Class<T> clazz, String... params) {
+    public static <T extends AbstractResponsePacket> T getData(String url, Class<T> clazz, String... params) {
         if (params == null || params.length == 0) {
             ChatException.throwChatException(ChatErrorCode.Parameter_com_null, null);
         }
-        CloseableHttpClient httpClient = createDefault();
-        HttpGet request = new HttpGet(DEFAULT_BASE_URL + url);
         StringBuilder sb = new StringBuilder(url + "?");
         int l = params.length - 1;
         while (--l > 0) {
             sb.append("&").append(params[l]);
         }
-        try {
-            request.setURI(new URI(sb.toString()));
-            CloseableHttpResponse response = httpClient.execute(request);
-            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                String result = EntityUtils.toString(response.getEntity());
-                return JSONObject.parseObject(result, clazz);
-            }
-        } catch (URISyntaxException | IOException e) {
-            System.err.println(Arrays.toString(e.getStackTrace()));
-        }
-        return null;
+        HttpGet request = new HttpGet(DEFAULT_BASE_URL + sb.toString());
+        return handleResponse(clazz, request);
     }
-
 
     /**
      * httpUtil invoke by RequestMethod.POST
@@ -102,8 +88,7 @@ public class HttpUtil {
      * @param <U>
      * @return
      */
-    public static <T extends AbstractResponsePacket, U extends AbstractRequestPacket> T postJsonData(String url, U u, Class<T> clazz) {
-        CloseableHttpClient httpClient = createDefault();
+    public static <T extends AbstractResponsePacket, U> T postJsonData(String url, U u, Class<T> clazz) {
         HttpPost post = new HttpPost(DEFAULT_BASE_URL + url);
 
         post.setHeader(CONTENT_TYPE, JSON_CONTENT_TYPE);
@@ -112,33 +97,40 @@ public class HttpUtil {
         post.setEntity(stringEntity);
 
         logger.debug("HttpPost: " + post);
+        return handleResponse(clazz, post);
+    }
+
+
+    /**
+     * @param request get/post 请求
+     * @param <T>     响应内容对应的POJO对象
+     * @return T
+     */
+    private static <T extends AbstractResponsePacket> T handleResponse(Class<T> clazz, HttpUriRequest request) {
+        CloseableHttpClient httpClient = createDefault();
         T t = null;
         try {
             t = clazz.newInstance();
-            CloseableHttpResponse response = httpClient.execute(post);
-            logger.debug("ResponseStatusCode: " + response.getStatusLine().getStatusCode());
-            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                JSONObject jsonObject = JSONObject.parseObject(EntityUtils.toString(response.getEntity()));
-                logger.debug("ResponseCode: " + jsonObject.get(CODE));
-                if (CODE_SUCCESS.equals(jsonObject.get(CODE))) {
-                    JSONObject data = (JSONObject) jsonObject.get(DATA);
-                    logger.debug("ResponseData: " + data);
-                    if (data != null) {
-                        t = JSONObject.toJavaObject(data, clazz);
-                    }
-                } else {
-                    t.setCode((String) jsonObject.get(CODE));
-                    t.setMessage((String) jsonObject.get(MESSAGE));
-                    t.setSuccess(false);
+            CloseableHttpResponse response = httpClient.execute(request);
+            int statusCode = response.getStatusLine().getStatusCode();
+            JSONObject jsonObject = JSONObject.parseObject(EntityUtils.toString(response.getEntity()));
+            String responseMessage = (String) jsonObject.get(MESSAGE);
+            logger.debug("ResponseStatusCode: " + statusCode);
+            logger.debug("ResponseMessage: " + responseMessage);
+            if (statusCode == HttpStatus.SC_OK) {
+                JSONObject responseData = (JSONObject) jsonObject.get(DATA);
+                logger.debug("ResponseData: " + responseData);
+                if (responseData != null){
+                    t = JSONObject.toJavaObject(responseData, clazz);
                 }
-            } else {
-                t.setMessage(response.getStatusLine().getReasonPhrase());
-                t.setCode(String.valueOf(response.getStatusLine().getStatusCode()));
-                t.setSuccess(false);
+                t.setSuccess(true);
             }
-            logger.debug("Response: ", t);
+            t.setCode(String.valueOf(statusCode));
+            t.setMessage(responseMessage);
         } catch (IOException | IllegalAccessException | InstantiationException e) {
-            logger.error("HttpUtilError", e);
+            if (t != null) {
+                t.setMessage("Connection refused");
+            }
         }
         return t;
     }

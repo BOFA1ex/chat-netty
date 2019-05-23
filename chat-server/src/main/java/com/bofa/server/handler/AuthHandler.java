@@ -9,6 +9,8 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetSocketAddress;
+
 /**
  * @author Bofa
  * @version 1.0
@@ -34,6 +36,8 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (!SessionUtil.hasLogin(ctx.channel())) {
+            InetSocketAddress address = (InetSocketAddress) ctx.channel().remoteAddress();
+            LoggerUtil.debug(logger, "Abnormal channel intercepted", address.getHostString() + ":" + address.getPort());
             ctx.channel().close();
         } else {
             ctx.pipeline().remove(this);
@@ -44,7 +48,7 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
         if (SessionUtil.hasLogin(ctx.channel())){
-            LoggerUtil.debug(logger, SessionUtil.getSession(ctx.channel()).getUser().getUserName(), "already login");
+            LoggerUtil.debug(logger, SessionUtil.getSession(ctx.channel()).getUser().getUserName(), "has login");
         }
         super.handlerRemoved(ctx);
     }

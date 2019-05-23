@@ -34,7 +34,20 @@ public enum Command {
     MESSAGE_REQUEST((byte) 5, "/chat/user/message"),
     MESSAGE_RESPONSE((byte) -5, "/chat/user/message"),
     MESSAGE_CALLBACK_REQUEST((byte) 6, "/"),
-    MESSAGE_CALLBACK_RESPONSE((byte) -6, "/");
+    MESSAGE_CALLBACK_RESPONSE((byte) -6, "/"),
+    FRIENDA_REQUEST((byte) 7, "/chat/friendApproval/save"),
+    FRIENDA_RESPONSE((byte) -7, "/chat/friendApproval/save"),
+    FRIENDA_CALLBACK_REQUEST((byte) 8, "/chat/friendApproval/update"),
+    FRIENDA_CALLBACK_RESPONSE((byte) -8, "/chat/friendApproval/update"),
+    FRIENDC_REQUEST((byte) 9, "/chat/friend/changeStatus"),
+    FRIENDC_RESPONSE((byte) -9, "/chat/friend/changeStatus"),
+    DEFAULT_REQUEST((byte) 994, "/"),
+    DEFAULT_RESPONSE((byte) 995, "/"),
+    NOTICE_RESPONSE((byte) 996, "/"),
+    SAVE_NOTICE((byte) 997, "/chat/notice/save"),
+    SAVE_FRIEND((byte) 998, "/chat/friend/save"),
+    OFFLINE_MESSAGE((byte) 999, "/chat/notice/save"),
+    CLIENT_CLOSE((byte) 1000, "/");
 
     public byte command;
 
@@ -45,9 +58,9 @@ public enum Command {
         this.url = url;
     }
 
-    public static String findByCommand(byte command){
+    public static String findByCommand(byte command) {
         for (Command c : values()) {
-            if (c.command == command){
+            if (c.command == command) {
                 return c.name();
             }
         }

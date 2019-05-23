@@ -6,6 +6,7 @@ package com.bofa.exception;
  * @decription com.bofa.exception
  * @date 2019/4/4
  */
+
 /**
  * @author Bofa
  * @version 1.0
@@ -17,6 +18,7 @@ public class ChatException extends RuntimeException {
     private static final long serialVersionUID = 4242111829918405178L;
 
     public ChatErrorCode errorCode;
+
 
     public ChatException(String message, Throwable cause) {
         super(message, cause);
@@ -31,16 +33,17 @@ public class ChatException extends RuntimeException {
         super(message);
     }
 
-    public static void throwChatException(ChatErrorCode errorCode, String... message){
+
+    public static void throwChatException(ChatErrorCode errorCode, String... message) {
         throw new ChatException(errorCode, message);
     }
 
-    public static void throwChatException(String message){
+    public static void throwChatException(String message) {
         throw new ChatException(message);
     }
 
 
-    public static void throwChatException(String message, Throwable cause){
+    public static void throwChatException(String message, Throwable cause) {
         throw new ChatException(message, cause);
     }
 

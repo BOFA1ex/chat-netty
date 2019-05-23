@@ -15,6 +15,15 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <nbs.version>1.0.12</nbs.version>
     </properties>
 
+    <dependencies>
+        <!-- spring common 基本web层 -->
+        <dependency>
+            <groupId>com.ai.nbs.common</groupId>
+            <artifactId>aicommon-spring-service</artifactId>
+            <version>${nbs.version}</version>
+        </dependency>
+    </dependencies>
 </project>

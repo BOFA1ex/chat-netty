@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
  */
 public class LoggerUtil {
 
+    static final Logger logger = LoggerFactory.getLogger(LoggerUtil.class);
+
     public static void info(Logger logger, String name, String eventMessage) {
         logger.info("[" + name + "] " + eventMessage);
     }
@@ -25,7 +27,9 @@ public class LoggerUtil {
     }
 
     public static void main(String[] args) {
-        LoggerUtil.error(LoggerFactory.getLogger(LoggerUtil.class), "bofa", "login success");
+        logger.info("logger-test-info");
+        logger.debug("logger-test-debug");
+        logger.error("logger-test-error");
+        logger.trace("logger-test-trace");
     }
-
 }

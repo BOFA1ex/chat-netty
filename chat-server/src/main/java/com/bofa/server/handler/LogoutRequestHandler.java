@@ -1,11 +1,10 @@
 package com.bofa.server.handler;
 
-import com.bofa.exception.ChatException;
 import com.bofa.protocol.request.LogoutRequestPacket;
 import com.bofa.protocol.response.LogoutResponsePacket;
-import com.bofa.server.TaskManager;
 import com.bofa.server.service.UserSv;
 import com.bofa.server.util.LoggerUtil;
+import com.bofa.server.util.TaskManager;
 import com.bofa.util.SessionUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -22,7 +21,6 @@ public class LogoutRequestHandler extends SimpleChannelInboundHandler<LogoutRequ
 
     static final LogoutRequestHandler INSTANCE = new LogoutRequestHandler();
     static final Logger logger = LoggerFactory.getLogger(LogoutRequestHandler.class);
-
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, LogoutRequestPacket requestPacket) throws Exception {

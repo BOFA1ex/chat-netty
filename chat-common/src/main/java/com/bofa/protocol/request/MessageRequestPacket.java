@@ -1,6 +1,6 @@
 package com.bofa.protocol.request;
 
-import com.bofa.entity.MessageInfo;
+import com.bofa.entity.UserMessage;
 import com.bofa.protocol.command.Command;
 import lombok.Data;
 
@@ -17,7 +17,7 @@ public class MessageRequestPacket extends AbstractRequestPacket {
 
     List<Integer> userIds;
 
-    MessageInfo messageInfo;
+    UserMessage userMessage;
 
     @Override
     public Byte getCommand() {

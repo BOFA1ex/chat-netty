@@ -1,6 +1,8 @@
 package com.bofa.protocol.request;
 
 import com.bofa.protocol.Packet;
+import com.bofa.protocol.command.Command;
+import com.bofa.protocol.response.AbstractResponsePacket;
 import lombok.Data;
 
 /**
@@ -13,4 +15,11 @@ import lombok.Data;
 public abstract class AbstractRequestPacket extends Packet{
 
     Integer userId;
+
+    public static class DefaultAbstractRequestPacket extends AbstractRequestPacket {
+        @Override
+        public Byte getCommand() {
+            return Command.DEFAULT_REQUEST.command;
+        }
+    }
 }

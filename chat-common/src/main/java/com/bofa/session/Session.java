@@ -2,8 +2,10 @@ package com.bofa.session;
 
 import com.bofa.entity.User;
 import com.bofa.entity.UserFriend;
+import com.bofa.entity.UserNotice;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -15,6 +17,11 @@ import java.util.List;
 @Data
 public class Session {
 
+    public Session(User user, List<UserFriend> friends, List<UserNotice> userNotices) {
+        this.user = user;
+        this.friends = friends;
+        this.userNotices = userNotices;
+    }
     public Session(User user, List<UserFriend> friends) {
         this.user = user;
         this.friends = friends;
@@ -24,10 +31,14 @@ public class Session {
 
     private List<UserFriend> friends;
 
-    public Integer findFriendIdByName(String name){
+    private List<UserNotice> userNotices;
+
+    private UserFriend lastChatUserFriend;
+
+    public UserFriend findFriendByName(String name){
         for (UserFriend uf : friends) {
             if (uf.getUserName().equals(name)) {
-                return uf.getUserId();
+                return uf;
             }
         }
         return null;

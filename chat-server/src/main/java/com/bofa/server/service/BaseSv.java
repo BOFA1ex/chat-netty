@@ -16,11 +16,15 @@ import java.util.Arrays;
  */
 public abstract class BaseSv {
 
-    protected static <T extends AbstractRequestPacket,
+    protected static <T,
             R extends AbstractResponsePacket>
-    R post(String url, T request, Class<R> clazz){
-        R response = HttpUtil.postJsonData(url, request, clazz);
-        response.setVersion(request.getVersion());
-        return response;
+    R post(String url, T request, Class<R> clazz) {
+        return HttpUtil.postJsonData(url, request, clazz);
+    }
+
+    protected static <
+            R extends AbstractResponsePacket>
+    R get(String url, Class<R> clazz, String... params) {
+        return HttpUtil.getData(url, clazz, params);
     }
 }

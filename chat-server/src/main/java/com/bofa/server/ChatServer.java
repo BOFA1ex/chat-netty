@@ -39,7 +39,6 @@ public class ChatServer {
     private static final int DEFAULT_PORT = 8000;
 
     public static void main(String[] args) {
-
         NioEventLoopGroup bossGroup = new NioEventLoopGroup();
         NioEventLoopGroup workGroup = new NioEventLoopGroup();
         final ServerBootstrap serverBootstrap = new ServerBootstrap();
@@ -54,8 +53,9 @@ public class ChatServer {
                     protected void initChannel(NioSocketChannel ch) throws Exception {
                         ch.pipeline().addLast(new Spliter());
                         ch.pipeline().addLast(PacketCodeHandler.INSTANCE);
-                        ch.pipeline().addLast(ChatServerHandler.INSTANCE);
+                        ch.pipeline().addLast(LoginRequestHandler.INSTANCE);
                         ch.pipeline().addLast(AuthHandler.INSTANCE);
+                        ch.pipeline().addLast(ChatServerHandler.INSTANCE);
                     }
                 });
         bind(serverBootstrap, DEFAULT_PORT);

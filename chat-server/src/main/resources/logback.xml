@@ -1,16 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
+    <property name="logPath" value="logs" />
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%red([%d{yyyy-MM-dd HH:mm:ss}]) %boldGreen([%thread]) %highlight(%-5level) %black(%logger{36}) - %white(%msg%n)
             </pattern>
         </encoder>
-        <!--发布服务器日志输出的样式-->
-        <!--<encoder>-->
-            <!--<pattern>%white(%d{HH:mm:ss.SSS}) %boldGreen([%thread]) %white(%-5level) %boldRed(%logger{36}) - -->
-                <!--%boldWhite(%msg%n)-->
-            <!--</pattern>-->
-        <!--</encoder>-->
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+    </appender>
+    <appender name="error" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${logPath}/logback-error-%d{yyyy-MM-dd}.log</fileNamePattern>
+        </rollingPolicy>
+        <append>true</append>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <charset>utf-8</charset>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+    <appender name="task" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${logPath}/logback-task-%d{yyyy-MM-dd}.log</fileNamePattern>
+        </rollingPolicy>
+        <append>true</append>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <charset>utf-8</charset>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>DEBUG</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+    <appender name="http" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${logPath}/logback-http-%d{yyyy-MM-dd}.log</fileNamePattern>
+        </rollingPolicy>
+        <append>true</append>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <charset>utf-8</charset>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>DEBUG</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
     </appender>
 
     <!--<springProfile name="dev">-->
@@ -20,24 +63,27 @@
 
         <!--<root level="INFO">-->
             <!--<appender-ref ref="console"/>-->
-            <!--&lt;!&ndash; <appender-ref ref="rollingFile" /> &ndash;&gt;-->
+            <!--<appender-ref ref="rollingFile" /> -->
         <!--</root>-->
 
     <!--</springProfile>-->
 
     <!-- project default level -->
-    <logger name="com.bofa" level="DEBUG"/>
-
-    <!--log4jdbc -->
-    <logger name="jdbc.sqltiming" level="INFO"/>
-    <logger name="jdbc.resultset" level="ERROR"/>
-    <logger name="jdbc.audit" level="ERROR"/>
+    <logger name="com.bofa">
+        <appender-ref ref="error"/>
+    </logger>
+    <logger name="com.bofa.server.TaskManager">
+        <appender-ref ref="task"/>
+    </logger>
+    <logger name="com.bofa.server.util.HttpUtil">
+        <appender-ref ref="http"/>
+    </logger>
     <!--log4jdbc -->
     <logger name="org.springframework" level="INFO"/>
 
     <root level="DEBUG">
         <appender-ref ref="console"/>
-        <!-- <appender-ref ref="rollingFile" /> -->
+        <appender-ref ref="error"/>
     </root>
 
 </configuration>
