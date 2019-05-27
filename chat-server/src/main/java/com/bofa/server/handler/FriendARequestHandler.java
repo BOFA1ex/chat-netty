@@ -9,6 +9,7 @@ import com.bofa.protocol.request.FriendACallBackRequestPacket;
 import com.bofa.protocol.request.FriendARequestPacket;
 import com.bofa.protocol.response.AbstractResponsePacket;
 import com.bofa.protocol.response.FriendAResponsePacket;
+import com.bofa.protocol.response.NoticeResponsePacket;
 import com.bofa.server.service.UserFriendSv;
 import com.bofa.server.service.UserNoticeSv;
 import com.bofa.server.util.TaskManager;
@@ -58,7 +59,7 @@ public class FriendARequestHandler extends SimpleChannelInboundHandler<FriendARe
                     } finally {
                         ctx.channel().writeAndFlush(responsePacket);
                     }
-                }, false);
+                }, ctx.channel(), false);
         /**
          * 如果申请对象离线，则存入通知
          * 反之直接通知对方
@@ -66,13 +67,13 @@ public class FriendARequestHandler extends SimpleChannelInboundHandler<FriendARe
         UserNotice approvalNotice = mapper(requestPacket);
         if (toUser == null || toUser.getStatus() == UserStatus.VISIBLE.status) {
             TaskManager.topicExecute(topic, "save approval notice",
-                    () -> UserNoticeSv.saveNotice(approvalNotice), true);
+                    () -> UserNoticeSv.saveNotice(approvalNotice), ctx.channel(), true);
         } else {
             final int approval2userId = toUser.getUserId();
             TaskManager.topicExecute(topic, "send approval online", () -> {
                 FriendACallBackRequestPacket packet = new FriendACallBackRequestPacket(approvalNotice);
                 SessionUtil.getChannel(approval2userId).writeAndFlush(packet);
-            }, true);
+            }, ctx.channel(), true);
         }
     }
 

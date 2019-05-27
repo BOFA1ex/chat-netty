@@ -1,5 +1,6 @@
 package com.bofa.server.handler;
 
+import com.ai.nbs.common.util.mapper.BeanMapper;
 import com.bofa.attribute.ApprovalStatus;
 import com.bofa.attribute.NoticeStatus;
 import com.bofa.attribute.NoticeType;
@@ -52,24 +53,33 @@ public class FriendACallBackResponseHandler extends SimpleChannelInboundHandler<
         if (responsePacket.isSuccess()) {
             userNotice.setNoticecontent(userNotice.getNoticename() + "通过了您的好友验证");
             TaskManager.topicExecute(topic, "save userFriend", () ->
-                    UserFriendSv.saveUserFriend(responsePacket.getUserFriend()), false);
+                    UserFriendSv.saveUserFriend(userFriend), ctx.channel(), false);
         } else {
             userNotice.setNoticecontent(userNotice.getNoticename() + "拒绝好友验证: " + responsePacket.getFailReason());
         }
         final UserNotice finalUserNotice = mapper(userNotice);
         if (toUser == null) {
             TaskManager.topicExecute(topic, "save notice [approval callback]", () ->
-                    UserNoticeSv.saveNotice(finalUserNotice), false);
+                    UserNoticeSv.saveNotice(finalUserNotice), ctx.channel(), false);
         } else {
             TaskManager.topicExecute(topic, "notice approver", () -> {
                 SessionUtil.getChannel(toUser.getUserId())
                         .writeAndFlush(new NoticeResponsePacket(finalUserNotice, userFriend));
-            }, false);
+            }, ctx.channel(), false);
         }
         TaskManager.topicExecute(topic, "update approval",
-                () -> UserFriendSv.updateApproval(result), true);
+                () -> UserFriendSv.updateApproval(result), ctx.channel(), true);
     }
 
+    /**
+     * mapper callback Notice
+     * noticeId -> userId
+     * noticeName -> userName
+     * userId -> noticeId
+     * userName -> noticeName
+     * @param userNotice
+     * @return
+     */
     private UserNotice mapper(UserNotice userNotice) {
         Integer noticeId = userNotice.getUserid();
         String noticeName = userNotice.getUsername();
@@ -83,6 +93,11 @@ public class FriendACallBackResponseHandler extends SimpleChannelInboundHandler<
         return userNotice;
     }
 
+    /**
+     * mapper friendApprovalPacket by friendCallBackPacket
+     * @param responsePacket
+     * @return
+     */
     private FriendARequestPacket mapper(FriendACallBackResponsePacket responsePacket) {
         UserNotice notice = responsePacket.getUserNotice();
         FriendARequestPacket requestPacket = new FriendARequestPacket();

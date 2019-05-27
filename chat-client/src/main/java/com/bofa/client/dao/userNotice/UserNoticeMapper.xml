@@ -318,22 +318,22 @@
             <include refid="Update_By_Example_Where_Clause"/>
         </if>
     </update>
-    <update id="updateAll" parameterType="java.util.List">
-        <foreach collection="list" item="item" separator=",">
-            update USER_NOTICE
-            <set>
-                USERID = #{item.userid,jdbcType=INTEGER},
-                USERNAME = #{item.username,jdbcType=VARCHAR},
-                NOTICEID = #{item.noticeid,jdbcType=INTEGER},
-                NOTICENAME = #{item.noticename,jdbcType=VARCHAR},
-                NOTICESTATUS = #{item.noticestatus,jdbcType=INTEGER},
-                NOTICEDATETIME = #{item.noticedatetime,jdbcType=VARCHAR},
-                NOTICETYPE = #{item.noticetype,jdbcType=INTEGER},
-                NOTICECONTENT = #{item.noticecontent,jdbcType=VARCHAR}
-            </set>
-            where ID = #{item.id,jdbcType=VARCHAR}
-        </foreach>
-    </update>
+    <!--<update id="updateAll" parameterType="java.util.List">-->
+        <!--<foreach collection="list" item="item" separator=",">-->
+            <!--update USER_NOTICE-->
+            <!--<set>-->
+                <!--USERID = #{item.userid,jdbcType=INTEGER},-->
+                <!--USERNAME = #{item.username,jdbcType=VARCHAR},-->
+                <!--NOTICEID = #{item.noticeid,jdbcType=INTEGER},-->
+                <!--NOTICENAME = #{item.noticename,jdbcType=VARCHAR},-->
+                <!--NOTICESTATUS = #{item.noticestatus,jdbcType=INTEGER},-->
+                <!--NOTICEDATETIME = #{item.noticedatetime,jdbcType=VARCHAR},-->
+                <!--NOTICETYPE = #{item.noticetype,jdbcType=INTEGER},-->
+                <!--NOTICECONTENT = #{item.noticecontent,jdbcType=VARCHAR}-->
+            <!--</set>-->
+            <!--where ID = #{item.id,jdbcType=VARCHAR}-->
+        <!--</foreach>-->
+    <!--</update>-->
     <update id="updateByPrimaryKeySelective" parameterType="com.bofa.entity.UserNotice">
         <!--
           WARNING - @mbg.generated

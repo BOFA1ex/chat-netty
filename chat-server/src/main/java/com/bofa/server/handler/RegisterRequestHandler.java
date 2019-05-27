@@ -25,14 +25,14 @@ import java.util.List;
  */
 @ChannelHandler.Sharable
 public class RegisterRequestHandler extends SimpleChannelInboundHandler<RegisterRequestPacket> {
-    static final RegisterRequestHandler INSTANCE = new RegisterRequestHandler();
+    public static final RegisterRequestHandler INSTANCE = new RegisterRequestHandler();
     static final Logger logger = LoggerFactory.getLogger(LoginRequestHandler.class);
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, RegisterRequestPacket requestPacket) throws Exception {
-        TaskManager.execute("register", () -> {
+        String userName = requestPacket.getUserName();
+        TaskManager.topicExecute("[" + userName + "]", "register", () -> {
             RegisterResponsePacket response = UserSv.register(requestPacket);
-            String userName = requestPacket.getUserName();
             User user = response.getUser();
             List<UserFriend> userFriends = response.getUserFriends();
             if (response.isSuccess()) {
@@ -41,7 +41,7 @@ public class RegisterRequestHandler extends SimpleChannelInboundHandler<Register
             } else {
                 LoggerUtil.debug(logger, userName, "register fail");
             }
-            ctx.channel().writeAndFlush(response);
-        });
+            return response;
+        }, response -> ctx.channel().writeAndFlush(response), ctx.channel(), true);
     }
 }

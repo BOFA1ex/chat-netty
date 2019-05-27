@@ -1,6 +1,6 @@
 create table USER_MESSAGE
 (
-	MESSAGEID    INTEGER       not null
+	MESSAGEID    VARCHAR(64)       not null
 		primary key,
 	FROMUSERNAME VARCHAR(256)  not null,
 	TOUSERNAME   VARCHAR(256)  not null,

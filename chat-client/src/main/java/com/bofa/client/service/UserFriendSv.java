@@ -35,13 +35,12 @@ public class UserFriendSv extends BaseSv<UserFriendsMapper, UserFriend, Integer,
         }
     }
 
-    // TODO: 2019/5/24 h2-database userFriend表结构修改了一下，save业务有问题，需要调试
     // TODO: 2019/5/24 另外, 验证回调reMapper 修改了userFriend对象，结果h2 保存对象获取的是修改后的对象
     // TODO: 2019/5/24 以上几点，尽快完成. 明天目标，好友申请功能（在线->离线, 在线->在线) 再测试下单聊功能(在线->离线,在线->在线) 
     // TODO: 2019/5/24 另外好友备注功能，尽快加进去(修改备注，查找好友信息（根据备注信息), 单聊） 
     // TODO: 2019/5/24 群聊功能，可以的话先设计方案思路, (群聊房间创建，群聊房间邀请，群聊房间申请，群聊）
     // TODO: 2019/5/24 继群聊之后，需考虑netty-server的集群部署，需要介入软负载做反向代理分发请求，需要集成redis记录请求对象的ip地址
-    
+
 
     public void save(UserFriend userFriend) {
         assert userFriend != null;

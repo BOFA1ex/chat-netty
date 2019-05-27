@@ -29,7 +29,7 @@ public class MessageCallBackResponseHandler extends SimpleChannelInboundHandler<
         return () -> PrintUtil.println(toUserName, "read your message [" + content + "]");
     }
 
-    private static Runnable failAction(String userName, String message) {
-        return () -> PrintUtil.println(userName, "logout fail: " + message);
+    private static Runnable failAction(String toUserName, String message) {
+        return () -> PrintUtil.println(toUserName, message);
     }
 }

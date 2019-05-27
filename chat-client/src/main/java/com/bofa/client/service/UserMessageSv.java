@@ -16,13 +16,19 @@ import java.util.List;
  * @date 2019/4/20
  */
 @Service
-public class UserMessageSv extends BaseSv<UserMessageMapper, UserMessage, Integer, UserMessageExample> {
+public class UserMessageSv extends BaseSv<UserMessageMapper, UserMessage, String, UserMessageExample> {
 
     public void save(UserMessage message) {
-        super.mapper.insert(message);
+        assert message != null;
+        assert message.getMessageid() != null;
+        if (super.mapper.selectByPrimaryKey(message.getMessageid()) == null) {
+            super.mapper.insert(message);
+        }
     }
 
     public List<UserMessage> findByFriendName(String friendName, String userName) {
+        assert friendName != null;
+        assert userName != null;
         UserMessageExample ex = new UserMessageExample();
         UserMessageExample.Criteria cs = ex.createCriteria();
         cs.andFromusernameLike("%" + friendName + "%");
@@ -34,6 +40,8 @@ public class UserMessageSv extends BaseSv<UserMessageMapper, UserMessage, Intege
     }
 
     public List<UserMessage> findByFriendId(Integer friendId, String userName){
+        assert friendId != null;
+        assert userName != null;
         UserMessageExample ex = new UserMessageExample();
         UserMessageExample.Criteria cs = ex.createCriteria();
         cs.andFromusernameEqualTo(userName);

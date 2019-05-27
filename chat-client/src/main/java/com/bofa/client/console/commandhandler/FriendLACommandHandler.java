@@ -50,7 +50,7 @@ public class FriendLACommandHandler extends FriendCommandHandler {
                  * 如果已登录，则返回所有的好友信息
                  */
                 if (flag) {
-                    sb.append("\t[").append(UserStatus.findByStatus(userFriend.getStatus()))
+                    sb.append("\t[").append(UserStatus.findByStatus(userFriend.getStatus(), false))
                             .append("]");
                 }
                 sb.append("\n");

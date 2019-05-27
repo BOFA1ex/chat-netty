@@ -34,41 +34,42 @@ public class MessageRequestHandler extends SimpleChannelInboundHandler<MessageRe
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, MessageRequestPacket requestPacket) throws Exception {
         UserMessage userMessage = requestPacket.getUserMessage();
+        String userName = userMessage.getFromusername();
         String toUserName = userMessage.getTousername();
         User toUser = SessionUtil.getUser(userMessage.getTouserid());
+        String topic = "[" + userName + "] send message to [" + toUserName + "]";
+
         /**
-         * 判断好友是否在线
-         * 离线或者隐身需要把消息存入通知信息表(新增通知信息，新增用户离线信息), 并响应客户端(好友不在线)
-         * 在线则根据Session获取channel，发送信息给另一个客户端，等待该客户端的回调响应
+         * toUser offline
+         * topicExecute -> [save message] -> [save notice [offline-message]]
+         * ps: topicExecute is make sure business data consistency
+         * execute callback to remind the fromUser
+         * toUser online
+         * execute [save message]
+         * execute [send online-message]
          */
-        TaskManager.execute("save message", () -> UserMessageSv.message(requestPacket));
         if (toUser == null) {
+            TaskManager.topicExecute(topic, "save message", () -> UserMessageSv.message(requestPacket), ctx.channel(), false);
             TaskManager.execute("callback offline", () -> {
                 MessageCallBackResponsePacket responsePacket = new MessageCallBackResponsePacket("不在线", toUserName);
                 responsePacket.setSuccess(false);
-                responsePacket.setMessage("不在线");
+                responsePacket.setMessage("不在线, 已发送离线信息");
                 ctx.channel().writeAndFlush(responsePacket);
             });
-            TaskManager.execute("save notice [offline-message]", () -> {
-                UserNotice notice = new UserNotice();
-                notice.setNoticecontent(userMessage.getContent());
-                notice.setNoticedatetime(userMessage.getDatetime());
-                notice.setUserid(userMessage.getFromuserid());
-                notice.setNoticeid(userMessage.getTouserid());
-                notice.setNoticestatus(NoticeStatus.UNREAD.status);
-                notice.setNoticetype(NoticeType.FRIEND_OFFLINE_MESSAGE.type);
+            TaskManager.topicExecute(topic, "save notice [offline-message]", () -> {
+                UserNotice notice = mapper(userMessage);
                 return UserMessageSv.offlineMessage(notice);
-            });
+            }, ctx.channel(), true);
             return;
         } else if (toUser.getStatus() == UserStatus.VISIBLE.status) {
             TaskManager.execute("callback visible", () -> {
                 MessageCallBackResponsePacket responsePacket = new MessageCallBackResponsePacket("不在线", toUserName);
                 responsePacket.setSuccess(false);
-                responsePacket.setMessage("不在线");
+                responsePacket.setMessage("不在线, 已发送离线信息");
                 ctx.channel().writeAndFlush(responsePacket);
             });
         }
-
+        TaskManager.execute("save message", () -> UserMessageSv.message(requestPacket));
         TaskManager.execute("send online-message", () -> {
             MessageResponsePacket responsePacket = new MessageResponsePacket();
             responsePacket.setFromUserName(userMessage.getFromusername());
@@ -76,6 +77,25 @@ public class MessageRequestHandler extends SimpleChannelInboundHandler<MessageRe
             LoggerUtil.info(logger, userMessage.getFromusername(), "send message -> [" + userMessage.getTousername() + "] " + userMessage.getContent());
             SessionUtil.getChannel(userMessage.getTouserid()).writeAndFlush(responsePacket);
         });
+    }
+
+    /**
+     * when toUser is offline, save notice to remind it.
+     * mapper userNotice by userMessage
+     * @param userMessage
+     * @return
+     */
+    private UserNotice mapper(UserMessage userMessage){
+        UserNotice notice = new UserNotice();
+        notice.setNoticecontent(userMessage.getContent());
+        notice.setNoticedatetime(userMessage.getDatetime());
+        notice.setUserid(userMessage.getFromuserid());
+        notice.setUsername(userMessage.getFromusername());
+        notice.setNoticeid(userMessage.getTouserid());
+        notice.setNoticename(userMessage.getTousername());
+        notice.setNoticestatus(NoticeStatus.UNREAD.status);
+        notice.setNoticetype(NoticeType.FRIEND_UNREAD_MESSAGE.type);
+        return notice;
     }
 
 }

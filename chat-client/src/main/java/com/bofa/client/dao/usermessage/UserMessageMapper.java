@@ -6,5 +6,5 @@ import com.bofa.entity.UserMessage;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface UserMessageMapper extends BaseMapper<UserMessage, Integer, UserMessageExample> {
+public interface UserMessageMapper extends BaseMapper<UserMessage, String, UserMessageExample> {
 }

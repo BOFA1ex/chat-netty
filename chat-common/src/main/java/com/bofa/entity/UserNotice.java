@@ -115,10 +115,9 @@ public class UserNotice extends MybatisEntity implements Serializable {
 
     @Override
     public String toString() {
-        return "\n" + "[NOTICE] " +
-                "#" + NoticeType.findByType(noticetype) + "\n" +
-                "[" + noticedatetime + "]" + " " +
-                "<" + noticename + ">" + "\n" +
-                " - " + noticecontent;
+        return "[NOTICE] " +
+                "[" + noticedatetime + "]" + "\n" +
+                "#" + NoticeType.findByType(noticetype) + " " +
+                "[" + username + "] - \"" + noticecontent + "\"";
     }
 }

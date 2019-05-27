@@ -70,7 +70,7 @@ public class LoginRequestHandler extends SimpleChannelInboundHandler<LoginReques
                 LoggerUtil.error(logger, userName, "login fail");
             }
             return response;
-        }, (response) -> ctx.channel().writeAndFlush(response), true);
+        }, (response) -> ctx.channel().writeAndFlush(response), ctx.channel(), true);
     }
 
 

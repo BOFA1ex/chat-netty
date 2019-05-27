@@ -40,7 +40,7 @@ public class LoginResponseHandler extends SimpleChannelInboundHandler<LoginRespo
         List<UserFriend> userFriends = loginResponsePacket.getUserFriends();
         List<UserNotice> userNotices = loginResponsePacket.getUserNotices();
         if (loginResponsePacket.isSuccess()) {
-            PrintStreamDelegate.delegate(successAction(user.getUserName()));
+            PrintStreamDelegate.delegate(successAction(user.getUserName(), userNotices));
             SessionUtil.bindSession(new Session(user, userFriends, userNotices), ctx.channel());
             /**
              * save latestUserId when user login but the process has not exit yet.
@@ -55,8 +55,13 @@ public class LoginResponseHandler extends SimpleChannelInboundHandler<LoginRespo
         SessionUtil.signalRespOrder();
     }
 
-    private static Runnable successAction(String userName) {
-        return () -> PrintUtil.println(userName, "login success");
+    private static Runnable successAction(String userName, List<UserNotice> userNotices) {
+        return () -> {
+            PrintUtil.println(userName, "login success");
+            for (UserNotice userNotice : userNotices) {
+                PrintUtil.println(userNotice);
+            }
+        };
     }
 
     private static Runnable failAction(String userName, String message) {

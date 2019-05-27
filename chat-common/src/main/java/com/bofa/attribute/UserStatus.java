@@ -30,12 +30,13 @@ public enum UserStatus {
      * 根据状态值返回说明(用于friend -l指令)
      * 不能反馈用户隐身的状态, 因此需要判断反馈为离线状态.
      * @param status
+     * @param itself difference by status -l and friend -l
      * @return
      */
-    public static String findByStatus(int status){
+    public static String findByStatus(int status, boolean itself){
         for (UserStatus us : UserStatus.values()) {
             if (us.status == status) {
-                if (status == VISIBLE.status){
+                if (!itself && status == VISIBLE.status){
                     return OFFLINE.comment;
                 }
                 return us.comment;

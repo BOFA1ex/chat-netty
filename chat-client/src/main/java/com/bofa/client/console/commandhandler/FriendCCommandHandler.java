@@ -70,7 +70,6 @@ public class FriendCCommandHandler extends FriendCommandHandler {
         requestPacket.setUserid(user.getUserId());
         requestPacket.setOperatetime(LocalDateTimeUtil.now0());
         requestPacket.setStatus(changeStatus);
-        System.out.println(requestPacket);
         channel.writeAndFlush(requestPacket);
         return this;
     }

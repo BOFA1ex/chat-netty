@@ -37,7 +37,7 @@ public class Session {
 
     public UserFriend findFriendByName(String name){
         for (UserFriend uf : friends) {
-            if (uf.getUserName().equals(name)) {
+            if (uf.getUserFriendName().equals(name)) {
                 return uf;
             }
         }

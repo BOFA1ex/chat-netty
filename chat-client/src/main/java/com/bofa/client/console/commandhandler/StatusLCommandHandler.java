@@ -27,7 +27,7 @@ public class StatusLCommandHandler extends BaseConsoleCommand {
             ChatException.throwChatException("查看用户状态失败，当前没有登录的账号");
         }
         User user = SessionUtil.getSession(channel).getUser();
-        String status = UserStatus.findByStatus(user.getStatus());
+        String status = UserStatus.findByStatus(user.getStatus(), true);
         PrintUtil.println(user.getUserName(), "当前状态: " + status);
         return this;
     }

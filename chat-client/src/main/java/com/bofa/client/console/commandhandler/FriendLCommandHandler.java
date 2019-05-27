@@ -55,7 +55,7 @@ public class FriendLCommandHandler extends BaseConsoleCommand {
                  * 如果已登录，则返回所有的好友信息
                  */
                 if (flag && userFriend.getStatus() == UserStatus.ONLINE.status) {
-                    sb.append("\t[").append(UserStatus.findByStatus(userFriend.getStatus()))
+                    sb.append("\t[").append(UserStatus.findByStatus(userFriend.getStatus(), false))
                             .append("]");
                     sb.append("\n");
                     all.append(sb);

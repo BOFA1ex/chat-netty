@@ -46,7 +46,7 @@ public class UserNoticeSv extends BaseSv<UserNoticeMapper, UserNotice, String, U
     }
 
     public void update(List<UserNotice> userNotices) {
-        super.mapper.updateAll(userNotices);
+        userNotices.forEach(userNotice -> super.mapper.updateByPrimaryKey(userNotice));
     }
 
     List<UserNotice> getUserNotices(Integer userId) {

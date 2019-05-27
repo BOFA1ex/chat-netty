@@ -16,6 +16,8 @@ public class RegisterRequestPacket extends AbstractRequestPacket {
 
     String password;
 
+    String commonIp;
+
     @Override
     public Byte getCommand() {
         return Command.REGISTER_REQUEST.command;

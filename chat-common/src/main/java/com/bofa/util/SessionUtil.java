@@ -77,7 +77,7 @@ public class SessionUtil {
     }
 
     public static void waitingForResp() throws InterruptedException, BrokenBarrierException {
-        PrintUtil.println("waiting for response");
+        PrintUtil.println("正在等待响应...");
         respOrder.await();
     }
 

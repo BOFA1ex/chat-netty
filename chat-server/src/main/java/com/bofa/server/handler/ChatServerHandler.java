@@ -37,7 +37,6 @@ public class ChatServerHandler extends SimpleChannelInboundHandler<Packet> {
 
     static {
         handleMap = new HashMap<>();
-        handleMap.put(Command.REGISTER_REQUEST.command, RegisterRequestHandler.INSTANCE);
         handleMap.put(Command.LOGOUT_REQUEST.command, LogoutRequestHandler.INSTANCE);
         handleMap.put(Command.MESSAGE_REQUEST.command, MessageRequestHandler.INSTANCE);
         handleMap.put(Command.MESSAGE_CALLBACK_REQUEST.command, MessageCallBackRequestHandler.INSTANCE);

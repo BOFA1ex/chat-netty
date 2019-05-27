@@ -12,8 +12,6 @@ import lombok.Data;
 @Data
 public class ChangeStatusResponsePacket extends AbstractResponsePacket{
 
-    Integer status;
-
     @Override
     public Byte getCommand() {
         return Command.CHANGE_STATUS_RESPONSE.command;

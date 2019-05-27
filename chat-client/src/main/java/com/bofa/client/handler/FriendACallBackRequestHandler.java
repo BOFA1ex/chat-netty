@@ -38,7 +38,12 @@ public class FriendACallBackRequestHandler extends SimpleChannelInboundHandler<F
     protected void channelRead0(ChannelHandlerContext ctx, FriendACallBackRequestPacket requestPacket) throws Exception {
         UserNotice approvalNotice = requestPacket.getUserNotice();
 
-        FriendACallBackResponsePacket responsePacket = handleApprovalCallBack(approvalNotice);
+        String approvalContent = approvalNotice.getNoticecontent();
+        String fromUserName = approvalNotice.getUsername();
+        PrintStreamDelegate.delegate(() -> {
+            PrintUtil.println(fromUserName, "发来好友请求: " + approvalContent);
+            PrintUtil.println("若要回复请求, 请输入NOTICE -L指令");
+        });
         /**
          * save notice which status is read
          */
@@ -46,16 +51,9 @@ public class FriendACallBackRequestHandler extends SimpleChannelInboundHandler<F
             approvalNotice.setNoticestatus(NoticeStatus.READ.status);
             userNoticeSv.save(approvalNotice);
         });
-        ctx.channel().writeAndFlush(responsePacket);
     }
 
-    /**
-     * online handle directly
-     * offline client get notices and need handle it.
-     *
-     * @param approvalNotice
-     * @return
-     */
+
     public FriendACallBackResponsePacket handleApprovalCallBack(UserNotice approvalNotice) {
         String approvalContent = approvalNotice.getNoticecontent();
         String fromUserName = approvalNotice.getUsername();
@@ -83,9 +81,7 @@ public class FriendACallBackRequestHandler extends SimpleChannelInboundHandler<F
                 responsePacket.setSuccess(true);
                 Optional.ofNullable(SessionUtil.getSession(userFriend.getUserId()))
                         .ifPresent(session -> session.getFriends().add(userFriend));
-                H2TaskManager.execute("agree to save userFriend", () -> {
-                    userFriendSv.save(userFriend);
-                });
+                H2TaskManager.execute("agree to save userFriend", () -> userFriendSv.save(userFriend));
                 break;
             case "n":
                 PrintStreamDelegate.delegate(() -> PrintUtil.print("输入拒绝理由: "));
@@ -133,7 +129,7 @@ public class FriendACallBackRequestHandler extends SimpleChannelInboundHandler<F
         /**
          * 判断对方是否在线
          */
-        if (SessionUtil.getUser(approvalNotice.getUserid()) == null) {
+        if (SessionUtil.getSession(approvalNotice.getUserid()) == null) {
             userFriend.setStatus(UserStatus.OFFLINE.status);
         }else {
             userFriend.setStatus(UserStatus.ONLINE.status);

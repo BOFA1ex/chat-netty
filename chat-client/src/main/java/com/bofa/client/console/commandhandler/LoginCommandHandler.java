@@ -31,12 +31,13 @@ public class LoginCommandHandler extends BaseConsoleCommand {
     @Override
     public BaseConsoleCommand commandHandle(Channel channel) {
         Session session = SessionUtil.getSession(channel);
-        String[] source = inputUserNameAndPwd();
-        LoginRequestPacket requestPacket = new LoginRequestPacket();
         if (session != null) {
             ChatException.throwChatException("客户端已登录["
                     + session.getUser().getUserName() + "]");
         }
+        String[] source = inputUserNameAndPwd();
+        LoginRequestPacket requestPacket = new LoginRequestPacket();
+
         requestPacket.setUserName(source[0]);
         requestPacket.setPassword(source[1]);
         InetSocketAddress address = (InetSocketAddress) channel.localAddress();

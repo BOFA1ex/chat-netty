@@ -1,5 +1,6 @@
 package com.bofa.server.handler;
 
+import com.bofa.entity.User;
 import com.bofa.protocol.request.LogoutRequestPacket;
 import com.bofa.protocol.response.LogoutResponsePacket;
 import com.bofa.server.service.UserSv;
@@ -24,17 +25,18 @@ public class LogoutRequestHandler extends SimpleChannelInboundHandler<LogoutRequ
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, LogoutRequestPacket requestPacket) throws Exception {
-        TaskManager.execute("logout", () -> {
+        User user = SessionUtil.getSession(ctx.channel()).getUser();
+        String userName = user.getUserName();
+        String topic = "[" + userName + "] logout";
+        TaskManager.topicExecute(topic, "logout", () -> {
             LogoutResponsePacket response = UserSv.logout(requestPacket);
-            String userName = SessionUtil.getSession(ctx.channel()).getUser().getUserName();
             response.setUserName(userName);
             if (response.isSuccess()) {
-                LoggerUtil.debug(logger, userName, "logout");
                 SessionUtil.unbindSession(ctx.channel());
             } else {
                 LoggerUtil.error(logger, userName, response.getMessage());
             }
-            ctx.channel().writeAndFlush(response);
-        });
+            return response;
+        }, response -> ctx.channel().writeAndFlush(response), ctx.channel(), true);
     }
 }

@@ -72,7 +72,7 @@
     <logger name="com.bofa">
         <appender-ref ref="error"/>
     </logger>
-    <logger name="com.bofa.server.TaskManager">
+    <logger name="com.bofa.server.util.TaskManager">
         <appender-ref ref="task"/>
     </logger>
     <logger name="com.bofa.server.util.HttpUtil">

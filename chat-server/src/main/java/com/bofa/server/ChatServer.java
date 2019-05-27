@@ -53,6 +53,7 @@ public class ChatServer {
                     protected void initChannel(NioSocketChannel ch) throws Exception {
                         ch.pipeline().addLast(new Spliter());
                         ch.pipeline().addLast(PacketCodeHandler.INSTANCE);
+                        ch.pipeline().addLast(RegisterRequestHandler.INSTANCE);
                         ch.pipeline().addLast(LoginRequestHandler.INSTANCE);
                         ch.pipeline().addLast(AuthHandler.INSTANCE);
                         ch.pipeline().addLast(ChatServerHandler.INSTANCE);

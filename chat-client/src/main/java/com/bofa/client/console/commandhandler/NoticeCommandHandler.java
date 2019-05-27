@@ -70,7 +70,7 @@ public class NoticeCommandHandler extends BaseConsoleCommand {
             return this;
         }
 
-        handleNotice0(userNotices, userName, channel);
+        handleNotice0(userNotices, channel);
         /**
          * change notice status unread -> read
          */
@@ -78,27 +78,25 @@ public class NoticeCommandHandler extends BaseConsoleCommand {
         return this;
     }
 
-    private void handleNotice0(List<UserNotice> noticeInfos, String userName, Channel channel) {
+    private void handleNotice0(List<UserNotice> noticeInfos, Channel channel) {
         for (UserNotice userNotice : noticeInfos) {
             /**
-             * if noticeType is friend-approval, need handle approval callback
-             * and writeAndFlush to server.
-             * @see NoticeType
-             * else print notice directly
+             * notice -la : just print it.
+             * notice -l : process depends on type which is friend approval or the other type
              */
-            if (Objects.equals(userNotice.getNoticetype(),
-                    NoticeType.FRIEND_APPROVAL_MESSAGE.type)) {
+            if (Objects.equals(userNotice.getNoticestatus(), NoticeStatus.READ.status)
+                    || !Objects.equals(userNotice.getNoticetype(), NoticeType.FRIEND_APPROVAL_MESSAGE.type)) {
+                System.out.println(userNotice);
+            } else {
                 FriendACallBackRequestHandler handler = (FriendACallBackRequestHandler)
                         ApplicationContextCmpt.getBean("friendACallBackRequestHandler");
                 FriendACallBackResponsePacket response = handler.handleApprovalCallBack(userNotice);
                 channel.writeAndFlush(response).addListener(future -> {
                     Optional.ofNullable(future.cause()).ifPresent(Throwable::printStackTrace);
-                    if (future.isSuccess()){
-                        System.out.println("channel write and flush sc");
+                    if (future.isSuccess()) {
+                        System.out.println("对方已成为你的好友，可以聊天了");
                     }
                 });
-            } else {
-                PrintUtil.println(userName, userNotice.toString());
             }
             userNotice.setNoticestatus(NoticeStatus.READ.status);
         }

@@ -1,6 +1,7 @@
 package com.bofa.server.handler;
 
 import com.bofa.attribute.UserStatus;
+import com.bofa.entity.User;
 import com.bofa.protocol.request.ChangeStatusRequestPacket;
 import com.bofa.protocol.response.ChangeStatusResponsePacket;
 import com.bofa.protocol.response.LogoutResponsePacket;
@@ -26,29 +27,30 @@ public class ChangeStatusRequestHandler extends SimpleChannelInboundHandler<Chan
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ChangeStatusRequestPacket requestPacket) throws Exception {
-        TaskManager.execute("changeStatus", () -> {
-            Integer status = requestPacket.getStatus();
-            String userName = SessionUtil.getSession(ctx.channel()).getUser().getUserName();
-            ChangeStatusResponsePacket response = UserSv.changeStatus(requestPacket);
-            response.setStatus(status);
-            if (response.isSuccess()) {
-                if (status == UserStatus.OFFLINE.status) {
-                    LoggerUtil.debug(logger, userName, "logout");
-                    SessionUtil.unbindSession(ctx.channel());
-                    LogoutResponsePacket logoutResponsePacket = new LogoutResponsePacket();
-                    logoutResponsePacket.setSuccess(true);
-                    logoutResponsePacket.setUserName(userName);
-                    ctx.channel().writeAndFlush(logoutResponsePacket);
-                    return;
-                } else if (status == UserStatus.VISIBLE.status) {
-                    LoggerUtil.debug(logger, userName, "changeStatus -> " + UserStatus.VISIBLE.comment);
-                } else if (status == UserStatus.ONLINE.status) {
-                    LoggerUtil.debug(logger, userName, "changeStatus -> " + UserStatus.ONLINE.comment);
-                }
-                ctx.channel().writeAndFlush(response);
-            } else {
-                LoggerUtil.error(logger, userName, response.getMessage());
-            }
-        });
+        User user = SessionUtil.getSession(ctx.channel()).getUser();
+        String topic = "[" + user.getUserName() + "] changeStatus";
+        TaskManager.topicExecute(topic, "changeStatus", () -> UserSv.changeStatus(requestPacket),
+                response -> {
+                    Integer status = requestPacket.getStatus();
+                    String userName = SessionUtil.getSession(ctx.channel()).getUser().getUserName();
+                    if (response.isSuccess()) {
+                        if (status == UserStatus.OFFLINE.status) {
+                            LoggerUtil.debug(logger, userName, "logout");
+                            SessionUtil.unbindSession(ctx.channel());
+                            LogoutResponsePacket logoutResponsePacket = new LogoutResponsePacket();
+                            logoutResponsePacket.setSuccess(true);
+                            logoutResponsePacket.setUserName(userName);
+                            ctx.channel().writeAndFlush(logoutResponsePacket);
+                            return;
+                        } else if (status == UserStatus.VISIBLE.status) {
+                            LoggerUtil.debug(logger, userName, "changeStatus -> " + UserStatus.VISIBLE.comment);
+                        } else if (status == UserStatus.ONLINE.status) {
+                            LoggerUtil.debug(logger, userName, "changeStatus -> " + UserStatus.ONLINE.comment);
+                        }
+                    } else {
+                        LoggerUtil.error(logger, userName, response.getMessage());
+                    }
+                    ctx.channel().writeAndFlush(response);
+                }, ctx.channel(), true);
     }
 }

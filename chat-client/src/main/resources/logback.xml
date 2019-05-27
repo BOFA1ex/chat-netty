@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <property name="logPath" value="~/.h2/logs"/>
+    <property name="logPath" value="logs"/>
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%red([%d{yyyy-MM-dd HH:mm:ss}]) %boldGreen([%thread]) %highlight(%-5level) %black(%logger{36}) -
@@ -41,7 +41,7 @@
 
     <logger name="org.flywaydb.core" level="OFF" additivity="false"/>
 
-    <logger name="org.h2.jdbc" additivity="false">
+    <logger name="org.h2.jdbc" additivity="true">
         <appender-ref ref="h2"/>
     </logger>
 

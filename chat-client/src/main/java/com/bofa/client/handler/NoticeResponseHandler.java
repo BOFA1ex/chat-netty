@@ -52,6 +52,6 @@ public class NoticeResponseHandler extends SimpleChannelInboundHandler<NoticeRes
                 Optional.ofNullable(future.cause()).ifPresent(Throwable::printStackTrace);
             });
         }
-        PrintStreamDelegate.delegateUnfair(() -> PrintUtil.println("\n" + notice.toString()));
+        PrintStreamDelegate.delegate(() -> System.out.println("\n" + notice));
     }
 }

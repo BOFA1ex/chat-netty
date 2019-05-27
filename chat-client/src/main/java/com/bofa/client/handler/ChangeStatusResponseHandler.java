@@ -21,9 +21,7 @@ public class ChangeStatusResponseHandler extends SimpleChannelInboundHandler<Cha
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ChangeStatusResponsePacket responsePacket) throws Exception {
         User user = SessionUtil.getSession(ctx.channel()).getUser();
-        if (responsePacket.isSuccess()) {
-            user.setStatus(responsePacket.getStatus());
-        } else {
+        if (!responsePacket.isSuccess()) {
             PrintStreamDelegate.delegate(failAction(user.getUserName(), responsePacket.getMessage()));
         }
     }

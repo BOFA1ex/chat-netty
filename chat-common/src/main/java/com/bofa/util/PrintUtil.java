@@ -16,18 +16,19 @@ import java.util.function.Supplier;
  */
 public class PrintUtil {
 
-    public static void print(String name, String eventMessage) {
+    public static void print(String name, Object eventMessage) {
         System.out.print(LocalDateTimeUtil.now() + " [" + name + "]" + eventMessage);
     }
 
-    public static void println(String name, String eventMessage) {
+    public static void println(String name, Object eventMessage) {
         System.out.println(LocalDateTimeUtil.now() + " [" + name + "]" + eventMessage);
     }
 
-    public static void print(String eventMessage) {
+    public static void print(Object eventMessage) {
         System.out.print(LocalDateTimeUtil.now() + " " + eventMessage);
     }
-    public static void println(String eventMessage) {
+
+    public static void println(Object eventMessage) {
         System.out.println(LocalDateTimeUtil.now() + " " + eventMessage);
     }
 
