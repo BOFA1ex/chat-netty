@@ -1,5 +1,6 @@
 package com.bofa.server.service;
 
+import com.bofa.attribute.UserStatus;
 import com.bofa.entity.User;
 import com.bofa.protocol.command.Command;
 import com.bofa.protocol.request.*;
@@ -18,6 +19,7 @@ public class UserSv extends BaseSv {
         if (!response.isSuccess()){
             User user = new User();
             user.setUserName(request.getUserName());
+            user.setStatus(UserStatus.OFFLINE.status);
             response.setUser(user);
         }
         return response;

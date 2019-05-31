@@ -1,5 +1,6 @@
 package com.bofa.client.util;
 
+import com.bofa.attribute.SystemNotice;
 import com.bofa.exception.ChatErrorCode;
 import com.bofa.exception.ChatException;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -28,6 +29,10 @@ public class PrintStreamDelegate {
 
     static {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> sc.close()));
+    }
+
+    public static void closeScanner(){
+        sc.close();
     }
 
     public static String nextLine() {

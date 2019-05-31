@@ -20,8 +20,8 @@
         <fastjson.version>1.2.29</fastjson.version>
         <junit.version>4.12</junit.version>
         <logback.version>1.1.7</logback.version>
-        <docker.repostory>xxx</docker.repostory>
-        <docker.host>xxx</docker.host>
+        <docker.repostory>118.25.92.228:8082</docker.repostory>
+        <docker.host>118.25.92.228:4324</docker.host>
         <docker.registry.name>bofa1ex</docker.registry.name>
     </properties>
 

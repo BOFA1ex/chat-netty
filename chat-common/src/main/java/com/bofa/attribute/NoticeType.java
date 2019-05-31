@@ -34,4 +34,9 @@ public enum NoticeType {
         }
         return null;
     }
+
+    @Override
+    public String toString() {
+        return type + ": " + comment;
+    }
 }

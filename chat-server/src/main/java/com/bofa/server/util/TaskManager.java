@@ -2,6 +2,7 @@ package com.bofa.server.util;
 
 import com.bofa.attribute.NoticeStatus;
 import com.bofa.attribute.NoticeType;
+import com.bofa.attribute.SystemNotice;
 import com.bofa.entity.User;
 import com.bofa.entity.UserNotice;
 import com.bofa.exception.ChatException;
@@ -51,7 +52,7 @@ public class TaskManager {
         AbstractResponsePacket response = null;
         int retry = DEFAULT_RETRY;
         try {
-            while (retry-- > 0 && (response = future.get()).isConnectionError()) {
+            while (retry-- > 0 && (response = future.get()).isInternalError()) {
                 LoggerUtil.debug(logger, "ScheduleTask Retry REST " + retry + " TIMES", taskName.toUpperCase());
                 future = BUSI_POOL.submit(callable);
             }
@@ -61,7 +62,12 @@ public class TaskManager {
             if (response == null) {
                 throw new Error("Connection refused");
             }
-            if (retry <= 0) {
+            /**
+             * 如果尝试次数小于等于0，则需要抛出异常，让系统通知用户
+             * !response.isSuccess() 证明响应并非系统内部其他非检查异常，而是定义抛出的ChatException
+             * 抛出异常是为了取消topic，取消关联的业务调用
+             */
+            if (retry <= 0 || !response.isSuccess()) {
                 throw new Error(response.getMessage());
             }
         }
@@ -76,7 +82,7 @@ public class TaskManager {
         AbstractResponsePacket response = null;
         int retry = DEFAULT_RETRY;
         try {
-            while (retry-- > 0 && (response = future.get()).isConnectionError()) {
+            while (retry-- > 0 && (response = future.get()).isInternalError()) {
                 LoggerUtil.debug(logger, "ScheduleTask Retry REST " + retry + " TIMES", taskName.toUpperCase());
                 future = BUSI_POOL.submit(callable);
             }
@@ -88,7 +94,7 @@ public class TaskManager {
             if (response == null) {
                 throw new Error("Connection refused");
             }
-            if (retry <= 0) {
+            if (retry <= 0 || !response.isSuccess()) {
                 throw new Error(response.getMessage());
             }
         }
@@ -173,24 +179,28 @@ public class TaskManager {
      * @return
      */
     private static Consumer<? super Throwable> handleError(String topic, Channel channel) {
-        String SYSTEM_NAME = "SYSTEM";
-        int SYSTEM_ID = -1;
         return t -> {
-            UserNotice un = new UserNotice();
-            User user = SessionUtil.getSession(channel).getUser();
-            un.setNoticeid(user.getUserId());
-            un.setNoticename(user.getUserName());
-            un.setNoticecontent(topic + "\n" +t.getMessage());
-            un.setNoticedatetime(LocalDateTimeUtil.now0());
-            un.setUsername(SYSTEM_NAME);
-            un.setUserid(SYSTEM_ID);
-            un.setNoticestatus(NoticeStatus.UNREAD.status);
-            un.setNoticetype(NoticeType.INTERNAL_SYSTEM_ERROR.type);
-            channel.writeAndFlush(new NoticeResponsePacket(un)).addListener(future -> {
-                if (!future.isSuccess()){
-                    future.cause().printStackTrace();
-                }
-            });
+            /**
+             * 如果用户不在线就不需要通知
+             * 这里的异常通知是业务系统非检查异常情况(如网络情况Operation socket connect refused)
+             */
+            if (SessionUtil.hasLogin(channel)){
+                UserNotice un = new UserNotice();
+                User user = SessionUtil.getSession(channel).getUser();
+                un.setNoticeid(user.getUserId());
+                un.setNoticename(user.getUserName());
+                un.setNoticecontent(topic + "\n" +t.getMessage());
+                un.setNoticedatetime(LocalDateTimeUtil.now0());
+                un.setUsername(SystemNotice.SYSTEMNAME);
+                un.setUserid(SystemNotice.SYSTEMID);
+                un.setNoticestatus(NoticeStatus.UNREAD.status);
+                un.setNoticetype(NoticeType.INTERNAL_SYSTEM_ERROR.type);
+                channel.writeAndFlush(new NoticeResponsePacket(un)).addListener(future -> {
+                    if (!future.isSuccess()){
+                        future.cause().printStackTrace();
+                    }
+                });
+            }
         };
     }
 

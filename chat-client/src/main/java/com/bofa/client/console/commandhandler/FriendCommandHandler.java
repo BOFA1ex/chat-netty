@@ -9,6 +9,7 @@ import com.bofa.entity.UserFriend;
 import io.netty.channel.Channel;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
@@ -18,6 +19,7 @@ import java.util.List;
  * @description com.bofa.client.console.commandhandler
  * @date 2019/5/4
  */
+@Component
 public class FriendCommandHandler extends BaseConsoleCommand {
 
     @Autowired

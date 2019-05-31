@@ -1,6 +1,8 @@
 package com.bofa.client.config;
 
 import com.bofa.client.console.ConsoleCommandManager;
+import com.bofa.client.util.H2TaskManager;
+import com.bofa.client.util.PrintStreamDelegate;
 import com.bofa.codeC.PacketCodeHandler;
 import com.bofa.codeC.Spliter;
 import com.bofa.exception.ChatException;
@@ -86,7 +88,7 @@ public class NettyHandlerCmpt implements BeanFactoryPostProcessor, BeanPostProce
                 new ThreadFactoryBuilder().setNameFormat("console-worker").build());
     }
 
-    private NioEventLoopGroup workGroup = new NioEventLoopGroup();
+    private static NioEventLoopGroup workGroup = new NioEventLoopGroup();
 
     /**
      * configuration bootStrap
@@ -139,12 +141,14 @@ public class NettyHandlerCmpt implements BeanFactoryPostProcessor, BeanPostProce
      */
     private void registerHook(Channel channel) {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            PrintStreamDelegate.closeScanner();
             SINGLE_CONSOLE_POOL.shutdownNow();
             try {
                 channel.writeAndFlush(new ClientCloseRequestPacket()).sync();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            workGroup.shutdownGracefully();
         }));
     }
 
@@ -161,11 +165,12 @@ public class NettyHandlerCmpt implements BeanFactoryPostProcessor, BeanPostProce
                 try {
                     ConsoleCommandManager.execute(channel);
                 } catch (Exception e) {
-                    if (e instanceof ChatException &&
-                            ((ChatException) e).errorCode.equals(CLIENT_CLOSE)) {
+                    System.out.println(e.getMessage());
+                    if (e instanceof ChatException
+                            && ((ChatException) e).errorCode != null
+                            && ((ChatException) e).errorCode.equals(CLIENT_CLOSE)) {
                         break;
                     }
-                    System.out.println(e.getMessage());
                 }
             }
         });

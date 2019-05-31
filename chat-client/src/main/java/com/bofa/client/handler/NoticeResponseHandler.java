@@ -1,6 +1,7 @@
 package com.bofa.client.handler;
 
 import com.bofa.attribute.NoticeType;
+import com.bofa.client.config.NettyHandlerCmpt;
 import com.bofa.client.service.UserFriendSv;
 import com.bofa.client.service.UserNoticeSv;
 import com.bofa.client.util.H2TaskManager;
@@ -16,6 +17,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Bofa
@@ -50,10 +52,11 @@ public class NoticeResponseHandler extends SimpleChannelInboundHandler<NoticeRes
          * 异地登录，通知本地设备登出
          */
         else if (notice.getNoticetype().equals(NoticeType.OTHER_PLACE_LOGIN.type)) {
+            PrintStreamDelegate.delegate(() -> System.out.println("\n" + notice));
             SessionUtil.unbindSession(ctx.channel());
-            ctx.close().addListener(future -> {
-                Optional.ofNullable(future.cause()).ifPresent(Throwable::printStackTrace);
-            });
+            System.out.println("请重新启动进程...");
+            System.exit(0);
+            return;
         }
 
         PrintStreamDelegate.delegate(() -> System.out.println("\n" + notice));

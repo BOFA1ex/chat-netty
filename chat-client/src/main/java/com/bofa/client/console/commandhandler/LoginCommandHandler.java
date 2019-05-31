@@ -16,6 +16,7 @@ import io.netty.util.concurrent.GenericFutureListener;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
+import java.io.Console;
 import java.net.InetSocketAddress;
 import java.util.Scanner;
 
@@ -68,8 +69,9 @@ public class LoginCommandHandler extends BaseConsoleCommand {
         if (StringUtils.isEmpty(userName)) {
             ChatException.throwChatException("userName不可为空");
         }
-        password = PrintStreamDelegate.nextLine();
-//        password = new String(ConsoleBuilder.getConsole().readPassword("input your password: "));
+//        password = PrintStreamDelegate.nextLine();
+        Console console = ConsoleBuilder.getConsole();
+        password = new String(console.readPassword("input your password: "));
         if (StringUtils.isEmpty(password)) {
             ChatException.throwChatException("password不可为空");
         }

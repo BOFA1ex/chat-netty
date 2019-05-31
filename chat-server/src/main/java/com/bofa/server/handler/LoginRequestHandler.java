@@ -1,6 +1,8 @@
 package com.bofa.server.handler;
 
+import com.bofa.attribute.NoticeStatus;
 import com.bofa.attribute.NoticeType;
+import com.bofa.attribute.SystemNotice;
 import com.bofa.attribute.UserStatus;
 import com.bofa.entity.User;
 import com.bofa.entity.UserNotice;
@@ -126,8 +128,10 @@ public class LoginRequestHandler extends SimpleChannelInboundHandler<LoginReques
         String hostString = ((InetSocketAddress) channel.remoteAddress()).getHostString();
         notice.setNoticedatetime(LocalDateTimeUtil.now0());
         notice.setNoticetype(NoticeType.OTHER_PLACE_LOGIN.type);
+        notice.setNoticestatus(NoticeStatus.UNREAD.status);
         notice.setNoticecontent("你的账号在另一个设备 [" + hostString + "] 登录");
-        notice.setUsername("SYSTEM");
+        notice.setUsername(SystemNotice.SYSTEMNAME);
+        notice.setUserid(SystemNotice.SYSTEMID);
         notice.setNoticename(userName);
         notice.setNoticeid(userId);
         return notice;

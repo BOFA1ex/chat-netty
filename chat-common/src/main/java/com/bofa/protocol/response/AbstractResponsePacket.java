@@ -25,7 +25,7 @@ public abstract class AbstractResponsePacket extends Packet {
 
     String code;
 
-    public boolean isConnectionError() {
+    public boolean isInternalError() {
         if (StringUtils.isEmpty(code)){
             return false;
         }
