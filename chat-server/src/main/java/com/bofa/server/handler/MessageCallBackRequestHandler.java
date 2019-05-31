@@ -20,6 +20,6 @@ public class MessageCallBackRequestHandler extends SimpleChannelInboundHandler<M
     protected void channelRead0(ChannelHandlerContext ctx, MessageCallBackRequestPacket requestPacket) throws Exception {
         String userName = SessionUtil.getSession(ctx.channel()).getUser().getUserName();
         SessionUtil.getChannel(requestPacket.getFromUserId())
-                .writeAndFlush(new MessageCallBackResponsePacket(requestPacket.getContent(), userName));
+                .writeAndFlush(new MessageCallBackResponsePacket(requestPacket.getContent(), userName, true));
     }
 }

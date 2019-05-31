@@ -1,6 +1,9 @@
 package com.bofa.protocol.request;
 
+import com.bofa.codeC.PacketCodeHandler;
+import com.bofa.protocol.PacketCodeC;
 import com.bofa.protocol.command.Command;
+import io.netty.buffer.ByteBuf;
 import lombok.Data;
 
 /**
@@ -18,4 +21,5 @@ public class ChangeStatusRequestPacket extends AbstractRequestPacket{
     public Byte getCommand() {
         return Command.CHANGE_STATUS_REQUEST.command;
     }
+
 }

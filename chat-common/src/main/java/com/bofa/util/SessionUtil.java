@@ -1,6 +1,7 @@
 package com.bofa.util;
 
 import com.bofa.attribute.Attributes;
+import com.bofa.attribute.UserStatus;
 import com.bofa.entity.User;
 import com.bofa.exception.ChatErrorCode;
 import com.bofa.exception.ChatException;
@@ -8,7 +9,7 @@ import com.bofa.session.Session;
 import io.netty.channel.Channel;
 
 import java.io.PrintStream;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.*;
 
 import static java.lang.Thread.currentThread;
@@ -33,10 +34,15 @@ public class SessionUtil {
     }
 
     public static void unbindSession(Channel channel) {
-        if (hasLogin(channel)) {
-            Integer userId = getSession(channel).getUser().getUserId();
+        if ((getSession(channel)) != null) {
+            Session session = getSession(channel);
+            Integer userId = session.getUser().getUserId();
             userIdChannelMap.remove(userId);
             userMap.remove(userId);
+            /**
+             * 通知观察者，被观察者登出
+             */
+            session.notifyLogout();
             channel.attr(Attributes.SESSION).set(null);
         } else {
             ChatException.throwChatException(ChatErrorCode.UNAUTHORIZED, "请重新登录");
@@ -67,9 +73,10 @@ public class SessionUtil {
         return userIdChannelMap.get(userId);
     }
 
-    public static User getUser(Integer userId){
+    public static User getUser(Integer userId) {
         return userMap.get(userId);
     }
+
     public static User getUser(String userName) {
         return userMap.values().stream()
                 .filter(user -> user.getUserName().equals(userName))

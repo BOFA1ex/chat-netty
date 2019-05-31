@@ -1,5 +1,7 @@
 package com.bofa.client.util;
 
+import com.bofa.exception.ChatErrorCode;
+import com.bofa.exception.ChatException;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import java.time.LocalDateTime;
@@ -24,8 +26,18 @@ public class PrintStreamDelegate {
                     , new ThreadFactoryBuilder().setNameFormat("printStream-worker")
                     .build());
 
+    static {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> sc.close()));
+    }
+
     public static String nextLine() {
-        return sc.nextLine();
+        String s = null;
+        try {
+            s = sc.nextLine();
+        } catch (Exception e) {
+            ChatException.throwChatException(ChatErrorCode.CLIENT_CLOSE);
+        }
+        return s;
     }
 
     public static String next() {

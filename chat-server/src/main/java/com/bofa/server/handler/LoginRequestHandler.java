@@ -15,6 +15,7 @@ import com.bofa.server.util.TaskManager;
 import com.bofa.session.Session;
 import com.bofa.util.LocalDateTimeUtil;
 import com.bofa.util.SessionUtil;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -45,19 +46,19 @@ public class LoginRequestHandler extends SimpleChannelInboundHandler<LoginReques
         String userName = loginRequestPacket.getUserName();
         TaskManager.topicExecute("[" + userName + "]", "login", () -> {
             User user;
+            Integer prevUserId;
+            /**
+             * 获取上一次登录的session信息, 将异地通知发给上一个设备
+             */
             if ((user = SessionUtil.getUser(userName)) != null) {
+                prevUserId = user.getUserId();
                 TaskManager.execute("通知上一个登录设备", () -> {
-                    UserNotice notice = new UserNotice();
-                    String hostString = ((InetSocketAddress) ctx.channel().remoteAddress()).getHostString();
-                    notice.setNoticedatetime(LocalDateTimeUtil.now());
-                    notice.setNoticetype(NoticeType.OTHER_PLACE_LOGIN.type);
-                    notice.setNoticecontent("你的账号在另一个设备 [" + hostString + "] 登录");
-                    notice.setNoticename("SYSTEM");
-                    SessionUtil.getChannel(user.getUserId())
+                    UserNotice notice = mapper(ctx.channel(), user.getUserName());
+                    SessionUtil.getChannel(prevUserId)
                             .writeAndFlush(new NoticeResponsePacket(notice)).addListener(future -> {
                         Optional.ofNullable(future.cause()).ifPresent(Throwable::printStackTrace);
                         if (future.isSuccess()) {
-                            LoggerUtil.debug(logger, "通知上一个登录设备", "成功");
+                            logger.debug("通知上一个登录设备成功");
                         }
                     });
                 });
@@ -118,5 +119,16 @@ public class LoginRequestHandler extends SimpleChannelInboundHandler<LoginReques
         InetSocketAddress address = ((NioSocketChannel) ctx.channel()).remoteAddress();
         LoggerUtil.debug(logger, "NEW CLIENT LINKED", address.getHostString() + ":" + address.getPort());
         super.channelActive(ctx);
+    }
+
+    private UserNotice mapper(Channel channel, String userName) {
+        UserNotice notice = new UserNotice();
+        String hostString = ((InetSocketAddress) channel.remoteAddress()).getHostString();
+        notice.setNoticedatetime(LocalDateTimeUtil.now0());
+        notice.setNoticetype(NoticeType.OTHER_PLACE_LOGIN.type);
+        notice.setNoticecontent("你的账号在另一个设备 [" + hostString + "] 登录");
+        notice.setUsername("SYSTEM");
+        notice.setNoticename(userName);
+        return notice;
     }
 }

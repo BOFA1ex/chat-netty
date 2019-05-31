@@ -3,6 +3,7 @@ package com.bofa.client.config;
 import com.bofa.client.console.ConsoleCommandManager;
 import com.bofa.codeC.PacketCodeHandler;
 import com.bofa.codeC.Spliter;
+import com.bofa.exception.ChatException;
 import com.bofa.protocol.request.AbstractRequestPacket;
 import com.bofa.protocol.request.ClientCloseRequestPacket;
 import com.bofa.util.LocalDateTimeUtil;
@@ -36,6 +37,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static com.bofa.exception.ChatErrorCode.CLIENT_CLOSE;
 
 /**
  * @author Bofa
@@ -47,27 +51,48 @@ import java.util.concurrent.TimeUnit;
 public class NettyHandlerCmpt implements BeanFactoryPostProcessor, BeanPostProcessor, ApplicationListener {
 
     private static Bootstrap bootstrap = new Bootstrap();
-    private static List<ChannelHandler> channelHandlers = new LinkedList<>();
+    private static List<ChannelHandler> channelHandlers = new ArrayList<>();
+
+    private static final int MAX_RETRY = 5;
+    /**
+     * console-thread build in single-thread-pool
+     */
+    private static final ThreadPoolExecutor SINGLE_CONSOLE_POOL;
+    /**
+     * responseHandler default package position
+     */
+    private static final String DEFAULT_BASE_PACKAGES = "com.bofa.client.handler";
+
+    /**
+     * BeanFactoryPostProcessor implement involving the process of class definition
+     * so, we need record {@link NettyHandlerCmpt#handleBeanClassNames}
+     * before we implement BeanPostProcessor
+     *
+     * @see NettyHandlerCmpt#postProcessAfterInitialization(Object, String)
+     * when handleOrder equals handleBeanClassNames size, just return it util beans register finish all
+     * @see ApplicationListener#onApplicationEvent(ApplicationEvent)
+     * when {@link ApplicationEvent instanceof ContextRefreshedEvent}
+     * triggering {@link NettyHandlerCmpt#channelScannerCallBack()} mapper the bootStrap handles.
+     * then finally connect to server automatically
+     */
+    private static int handlerOrder = 0;
     static List<String> handleBeanClassNames = new ArrayList<>();
 
     static final Logger logger = LoggerFactory.getLogger(NettyHandlerCmpt.class);
 
-    private static final int MAX_RETRY = 5;
-    private static int handlerOrder = 0;
-    private static final ThreadPoolExecutor SINGLE_CONSOLE_POOL;
-    private static final String DEFAULT_BASE_PACKAGES = "com.bofa.client.handler";
     static {
         SINGLE_CONSOLE_POOL = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.SECONDS,
                 new LinkedBlockingDeque<>(),
                 new ThreadFactoryBuilder().setNameFormat("console-worker").build());
     }
 
+    private NioEventLoopGroup workGroup = new NioEventLoopGroup();
+
     /**
      * configuration bootStrap
      * set channel type, option
      */
     public NettyHandlerCmpt() {
-        NioEventLoopGroup workGroup = new NioEventLoopGroup();
         bootstrap
                 .group(workGroup)
                 .channel(NioSocketChannel.class)
@@ -106,9 +131,15 @@ public class NettyHandlerCmpt implements BeanFactoryPostProcessor, BeanPostProce
         });
     }
 
+    /**
+     * when client connect to server succeed
+     * start console-thread and register shutdown-hook
+     *
+     * @param channel
+     */
     private void registerHook(Channel channel) {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            System.out.println("channel: " + channel);
+            SINGLE_CONSOLE_POOL.shutdownNow();
             try {
                 channel.writeAndFlush(new ClientCloseRequestPacket()).sync();
             } catch (InterruptedException e) {
@@ -130,6 +161,10 @@ public class NettyHandlerCmpt implements BeanFactoryPostProcessor, BeanPostProce
                 try {
                     ConsoleCommandManager.execute(channel);
                 } catch (Exception e) {
+                    if (e instanceof ChatException &&
+                            ((ChatException) e).errorCode.equals(CLIENT_CLOSE)) {
+                        break;
+                    }
                     System.out.println(e.getMessage());
                 }
             }
@@ -217,7 +252,7 @@ public class NettyHandlerCmpt implements BeanFactoryPostProcessor, BeanPostProce
             beanDefinitionHolders.forEach(
                     beanDefinitionHolder -> {
                         String beanName = beanDefinitionHolder.getBeanName();
-                        logger.info("scan handle bean className : " + beanName);
+                        logger.debug("scan handle bean className : " + beanName);
                         handleBeanClassNames.add(beanName);
                     }
             );

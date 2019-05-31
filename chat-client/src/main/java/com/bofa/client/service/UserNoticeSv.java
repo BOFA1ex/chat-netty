@@ -55,11 +55,28 @@ public class UserNoticeSv extends BaseSv<UserNoticeMapper, UserNotice, String, U
         return super.mapper.selectByExample(ex);
     }
 
+    List<UserNotice> getUserNoticesByType(Integer userId, Integer noticeType) {
+        UserNoticeExample ex = new UserNoticeExample();
+        UserNoticeExample.Criteria cs = ex.createCriteria();
+        cs.andNoticeidEqualTo(userId);
+        cs.andNoticetypeEqualTo(noticeType);
+        return super.mapper.selectByExample(ex);
+    }
+
     List<UserNotice> getUserNonReadNotices(Integer userId) {
         UserNoticeExample ex = new UserNoticeExample();
         UserNoticeExample.Criteria cs = ex.createCriteria();
         cs.andNoticeidEqualTo(userId);
         cs.andNoticestatusEqualTo(NoticeStatus.UNREAD.status);
+        return super.mapper.selectByExample(ex);
+    }
+
+    List<UserNotice> getUserNonReadNoticesByType(Integer userId, Integer noticeType){
+        UserNoticeExample ex = new UserNoticeExample();
+        UserNoticeExample.Criteria cs = ex.createCriteria();
+        cs.andNoticeidEqualTo(userId);
+        cs.andNoticestatusEqualTo(NoticeStatus.UNREAD.status);
+        cs.andNoticetypeEqualTo(noticeType);
         return super.mapper.selectByExample(ex);
     }
 }

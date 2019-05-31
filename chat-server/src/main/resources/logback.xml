@@ -1,14 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <property name="logPath" value="logs" />
-    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="dev-console" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%red([%d{yyyy-MM-dd HH:mm:ss}]) %boldGreen([%thread]) %highlight(%-5level) %black(%logger{36}) - %white(%msg%n)
+            <pattern>%red([%d{yyyy-MM-dd HH:mm:ss}]) %boldGreen([%thread]) %highlight(%-5level) %boldRed(%logger{36}) - %black(%msg%n)
             </pattern>
         </encoder>
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>DEBUG</level>
-        </filter>
+    </appender>
+
+    <appender name="prod-console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%white(%d{HH:mm:ss.SSS}) %boldGreen([%thread]) %white(%-5level) %boldRed(%logger{36}) -
+                %boldWhite(%msg%n)
+            </pattern>
+        </encoder>
     </appender>
     <appender name="error" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
@@ -25,9 +30,9 @@
             <onMismatch>DENY</onMismatch>
         </filter>
     </appender>
-    <appender name="task" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <appender name="common" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${logPath}/logback-task-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>${logPath}/logback-common-%d{yyyy-MM-dd}.log</fileNamePattern>
         </rollingPolicy>
         <append>true</append>
         <encoder>
@@ -56,24 +61,13 @@
         </filter>
     </appender>
 
-    <!--<springProfile name="dev">-->
-
-        <!--&lt;!&ndash; project default level &ndash;&gt;-->
-        <!--<logger name="com.bofa" level="DEBUG"/>-->
-
-        <!--<root level="INFO">-->
-            <!--<appender-ref ref="console"/>-->
-            <!--<appender-ref ref="rollingFile" /> -->
-        <!--</root>-->
-
-    <!--</springProfile>-->
 
     <!-- project default level -->
     <logger name="com.bofa">
         <appender-ref ref="error"/>
     </logger>
-    <logger name="com.bofa.server.util.TaskManager">
-        <appender-ref ref="task"/>
+    <logger name="com.bofa.server.util.LoggerUtil">
+        <appender-ref ref="common"/>
     </logger>
     <logger name="com.bofa.server.util.HttpUtil">
         <appender-ref ref="http"/>
@@ -82,7 +76,7 @@
     <logger name="org.springframework" level="INFO"/>
 
     <root level="DEBUG">
-        <appender-ref ref="console"/>
+        <appender-ref ref="prod-console"/>
         <appender-ref ref="error"/>
     </root>
 

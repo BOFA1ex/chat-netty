@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -18,10 +19,13 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 import javax.sql.DataSource;
 
@@ -34,9 +38,9 @@ import javax.sql.DataSource;
 
 @Configuration
 @ComponentScan(basePackages = "com.bofa")
-public class DevConfig {
+public class MapperConfig {
 
-    static final Logger logger = LoggerFactory.getLogger(DevConfig.class);
+    static final Logger logger = LoggerFactory.getLogger(MapperConfig.class);
 
     /**
      * mybatis配置, DAO扫描
@@ -51,18 +55,17 @@ public class DevConfig {
         return mapperConfig;
     }
 
+
     /**
      * 注册commandHandler到容器后
      * 缓存到ConsoleCommandManager的map
-     * 放弃该方法
+     * ----------------------- 放弃该方法 ------------------------
      * 选择用spring-beans提供的InitializingBean接口实现方案来替代
      *
-     * @return
      * @see BaseConsoleCommand
      * 该抽象类实现了InitializingBean的afterPropertiesSet方法实现
      * 初始化cmpt后将cmpt引用缓存在ConsoleCommandManager里，再放入beanFactory
-     * @see org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory
-     * 对应的method invokeInitMethods
+     * @see org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#invokeInitMethods(String, Object, RootBeanDefinition)
      * init-method是在afterPropertiesSet之后执行的
      * bean的init-method指定的方法是通过反射执行的，虽然效率低，但是消除了对spring的依赖
      */
@@ -81,6 +84,7 @@ public class DevConfig {
     /**
      * BeanFactoryPostProcessor 对beanDefinition进行处理，在bean实例化注册到容器之前执行.
      * BeanPostProcessor 在bean实例化后注册到容器前后执行
+     * ------------------------- 该方案不成立 ------------------
      */
 //    @Bean(name = "handlerScanner")
 //    public BeanFactoryPostProcessor handlerScannerConfigure() throws IOException, ClassNotFoundException {

@@ -83,6 +83,7 @@ public class TaskManager {
         } catch (ExecutionException | InterruptedException e) {
             LoggerUtil.debug(logger, "ScheduleTask throws ", e.getMessage());
         } finally {
+            LoggerUtil.debug(logger, "ScheduleTask invoke writeAndFlush", andThen.toString());
             andThen.accept(response);
             if (response == null) {
                 throw new Error("Connection refused");

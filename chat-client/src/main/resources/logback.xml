@@ -8,7 +8,7 @@
             </pattern>
         </encoder>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>INFO</level>
+            <level>DEBUG</level>
         </filter>
     </appender>
     <appender name="h2" class="ch.qos.logback.core.rolling.RollingFileAppender">
@@ -26,6 +26,29 @@
         </filter>
     </appender>
 
+    <springProfile name="dev">
+
+        <!-- project default level -->
+        <logger name="com.bofa" level="DEBUG"/>
+
+        <logger name="org.h2.jdbc" additivity="true">
+            <appender-ref ref="h2"/>
+        </logger>
+
+        <root level="DEBUG">
+            <appender-ref ref="console"/>
+        </root>
+
+    </springProfile>
+
+    <springProfile name="prod">
+
+        <logger name="com.bofa.client.util.H2TaskManager" additivity="true">
+            <appender-ref ref="h2"/>
+        </logger>
+
+    </springProfile>
+
     <!--log4jdbc -->
     <logger name="org.springframework" level="OFF"/>
 
@@ -41,13 +64,5 @@
 
     <logger name="org.flywaydb.core" level="OFF" additivity="false"/>
 
-    <logger name="org.h2.jdbc" additivity="true">
-        <appender-ref ref="h2"/>
-    </logger>
-
-
-    <root level="DEBUG">
-        <appender-ref ref="console"/>
-    </root>
 
 </configuration>

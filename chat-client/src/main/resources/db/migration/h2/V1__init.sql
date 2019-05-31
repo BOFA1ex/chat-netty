@@ -26,10 +26,12 @@ is '1: 已读
 2: 未读';
 
 comment on column USER_NOTICE.NOTICETYPE
-is '1:好友离线信息
-2:好友验证信息
-3:异地登录信息
-4:群聊信息';
+is '1:好友未读消息
+2:好友验证请求
+3:好友验证响应
+4:异地登录
+5:群聊离线
+6:系统异常';
 
 create unique index USER_NOTICE_ID_UINDEX
 	on USER_NOTICE (ID);

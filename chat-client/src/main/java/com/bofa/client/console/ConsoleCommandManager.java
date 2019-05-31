@@ -40,19 +40,14 @@ public class ConsoleCommandManager {
      * @param channel
      * @see com.bofa.client.console.commandhandler
      */
-    public static void execute(Channel channel) {
+    public static void execute(Channel channel) throws ChatException {
         if (isFirst) {
             commandHashMap.get(ClientCommand.HELP).commandHandle(channel);
             isFirst = false;
         }
-        String command = PrintStreamDelegate.nextLine();
-        if (StringUtils.isEmpty(command)) {
-            PrintStreamDelegate.delegate(() -> {
-                System.out.println("指令不可为空");
-            });
-            return;
-        }
         ClientCommand cmd = null;
+        boolean commandInvalid = true;
+        String command = PrintStreamDelegate.nextLine();
         try {
             command = StringTokenUtil.merge(command, "-");
             cmd = ClientCommand.valueOf(command);
@@ -61,9 +56,9 @@ public class ConsoleCommandManager {
             PrintStreamDelegate.delegate(() -> {
                 System.out.println("无法识别该指令[" + finalCommand + "]");
             });
-            return;
+            commandInvalid = false;
         }
-        execute(cmd, channel);
+        execute(commandInvalid, cmd, channel);
     }
 
 
@@ -72,7 +67,8 @@ public class ConsoleCommandManager {
      * @param channel
      * @see com.bofa.client.console.commandhandler.NoticeCommandHandler
      */
-    public static void execute(ClientCommand cmd, Channel channel) {
+    public static void execute(boolean commandInvalid, ClientCommand cmd, Channel channel) {
+        assert commandInvalid;
         commandHashMap.get(cmd).commandHandle(channel).waitingForResp(cmd);
     }
 

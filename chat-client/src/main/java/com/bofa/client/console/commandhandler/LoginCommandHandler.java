@@ -68,8 +68,8 @@ public class LoginCommandHandler extends BaseConsoleCommand {
         if (StringUtils.isEmpty(userName)) {
             ChatException.throwChatException("userName不可为空");
         }
-        password = PrintStreamDelegate.nextLine();
-//        password = new String(ConsoleBuilder.getConsole().readPassword("input your password: "));
+//        password = PrintStreamDelegate.nextLine();
+        password = new String(ConsoleBuilder.getConsole().readPassword("input your password: "));
         if (StringUtils.isEmpty(password)) {
             ChatException.throwChatException("password不可为空");
         }

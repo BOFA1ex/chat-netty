@@ -51,7 +51,7 @@ public class MessageRequestHandler extends SimpleChannelInboundHandler<MessageRe
         if (toUser == null) {
             TaskManager.topicExecute(topic, "save message", () -> UserMessageSv.message(requestPacket), ctx.channel(), false);
             TaskManager.execute("callback offline", () -> {
-                MessageCallBackResponsePacket responsePacket = new MessageCallBackResponsePacket("不在线", toUserName);
+                MessageCallBackResponsePacket responsePacket = new MessageCallBackResponsePacket("不在线", toUserName, false);
                 responsePacket.setSuccess(false);
                 responsePacket.setMessage("不在线, 已发送离线信息");
                 ctx.channel().writeAndFlush(responsePacket);
@@ -63,7 +63,7 @@ public class MessageRequestHandler extends SimpleChannelInboundHandler<MessageRe
             return;
         } else if (toUser.getStatus() == UserStatus.VISIBLE.status) {
             TaskManager.execute("callback visible", () -> {
-                MessageCallBackResponsePacket responsePacket = new MessageCallBackResponsePacket("不在线", toUserName);
+                MessageCallBackResponsePacket responsePacket = new MessageCallBackResponsePacket("不在线", toUserName, false);
                 responsePacket.setSuccess(false);
                 responsePacket.setMessage("不在线, 已发送离线信息");
                 ctx.channel().writeAndFlush(responsePacket);

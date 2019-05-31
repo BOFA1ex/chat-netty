@@ -28,9 +28,9 @@ import java.util.OptionalDouble;
  */
 public class PacketCodeC {
 
-    public static final int MAGIC_NUMBER = 0x12345678;
+    public static final int MAGIC_NUMBER = 0x56436056;
     public static final PacketCodeC INSTANCE = new PacketCodeC();
-    static final Logger logger = LoggerFactory.getLogger(PacketCodeC.class);
+    static Logger logger;
 
     private final Map<Byte, Class<? extends Packet>> packetTypeMap;
     private final Map<Byte, Serializer> serializerMap;
@@ -57,8 +57,9 @@ public class PacketCodeC {
         packetTypeMap.put(Command.FRIENDA_CALLBACK_RESPONSE.command, FriendACallBackResponsePacket.class);
         packetTypeMap.put(Command.NOTICE_RESPONSE.command, NoticeResponsePacket.class);
         packetTypeMap.put(Command.CLIENT_CLOSE.command, ClientCloseRequestPacket.class);
-        packetTypeMap.values().forEach(value -> {
-            System.out.println("packetCodeC register class: " + value);
+        logger =  LoggerFactory.getLogger(PacketCodeC.class);
+        packetTypeMap.values().forEach(clazz -> {
+            logger.debug("packetCodeC register " + clazz);
         });
     }
 

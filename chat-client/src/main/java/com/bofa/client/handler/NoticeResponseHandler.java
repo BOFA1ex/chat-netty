@@ -29,6 +29,9 @@ public class NoticeResponseHandler extends SimpleChannelInboundHandler<NoticeRes
     @Autowired
     private UserFriendSv userFriendSv;
 
+    @Autowired
+    private UserNoticeSv userNoticeSv;
+
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, NoticeResponsePacket responsePacket) throws Exception {
         UserNotice notice = responsePacket.getUserNotice();
@@ -52,6 +55,8 @@ public class NoticeResponseHandler extends SimpleChannelInboundHandler<NoticeRes
                 Optional.ofNullable(future.cause()).ifPresent(Throwable::printStackTrace);
             });
         }
+
         PrintStreamDelegate.delegate(() -> System.out.println("\n" + notice));
+        H2TaskManager.execute("save notice", () -> userNoticeSv.save(notice));
     }
 }

@@ -69,11 +69,31 @@ public class UserSv extends BaseSv<UserMapper, User, Integer, UserExample> {
         return userNoticeSv.getUserNotices(latestUserId);
     }
 
+    public List<UserNotice> getUserNoticesByType(Integer noticeType) {
+        if (latestUserId == null) {
+            ChatException.throwChatException("No logged-in user exists");
+        }
+        if (noticeType == null){
+            return getUserNotices();
+        }
+        return userNoticeSv.getUserNoticesByType(latestUserId, noticeType);
+    }
+
     public List<UserNotice> getUserNonReadNotices() {
         if (latestUserId == null) {
             ChatException.throwChatException("No logged-in user exists");
         }
         return userNoticeSv.getUserNonReadNotices(latestUserId);
+    }
+
+    public List<UserNotice> getUserNonReadNoticesByType(Integer noticeType) {
+        if (latestUserId == null) {
+            ChatException.throwChatException("No logged-in user exists");
+        }
+        if (noticeType == null){
+            return getUserNonReadNotices();
+        }
+        return userNoticeSv.getUserNonReadNoticesByType(latestUserId, noticeType);
     }
 
     public void setLatestUserId(Integer latestUserId) {

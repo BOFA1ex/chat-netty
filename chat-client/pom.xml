@@ -127,10 +127,10 @@
                             <mainClass>com.bofa.client.ChatClientApplication</mainClass>
                         </manifest>
                     </archive>
-                    <excludes>
-                        <exclude>application.properties</exclude>
-                        <exclude>logback.xml</exclude>
-                    </excludes>
+                    <!--<excludes>-->
+                    <!--<exclude>application.properties</exclude>-->
+                    <!--<exclude>logback.xml</exclude>-->
+                    <!--</excludes>-->
                 </configuration>
             </plugin>
         </plugins>

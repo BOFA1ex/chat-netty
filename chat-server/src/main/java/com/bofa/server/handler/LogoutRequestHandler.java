@@ -12,6 +12,8 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Optional;
+
 /**
  * @author Bofa
  * @version 1.0
@@ -28,6 +30,11 @@ public class LogoutRequestHandler extends SimpleChannelInboundHandler<LogoutRequ
         User user = SessionUtil.getSession(ctx.channel()).getUser();
         String userName = user.getUserName();
         String topic = "[" + userName + "] logout";
+        /**
+         * 用户登出
+         * unbindSession
+         * 更新
+         */
         TaskManager.topicExecute(topic, "logout", () -> {
             LogoutResponsePacket response = UserSv.logout(requestPacket);
             response.setUserName(userName);

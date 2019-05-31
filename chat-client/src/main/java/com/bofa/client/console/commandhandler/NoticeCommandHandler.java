@@ -43,7 +43,7 @@ public class NoticeCommandHandler extends BaseConsoleCommand {
 
     @Override
     public BaseConsoleCommand commandHandle(Channel channel) {
-        ConsoleCommandManager.execute(ClientCommand.NOTICEL, channel);
+        ConsoleCommandManager.execute(true, ClientCommand.NOTICEL, channel);
         return this;
     }
 

@@ -6,6 +6,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageCodec;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -20,18 +22,22 @@ public class PacketCodeHandler extends MessageToMessageCodec<ByteBuf, Packet> {
 
     public static final PacketCodeHandler INSTANCE = new PacketCodeHandler();
 
+    static final Logger logger = LoggerFactory.getLogger(PacketCodeHandler.class);
+
+    public static PacketCodeC packetCodec = PacketCodeC.INSTANCE;
+
     @Override
     protected void encode(ChannelHandlerContext ctx, Packet packet, List<Object> list) throws Exception {
-        System.out.println("encode packet: " + packet);
+        logger.debug("encode packet " + packet);
         ByteBuf byteBuf = ctx.channel().alloc().ioBuffer();
-        ByteBuf encode = PacketCodeC.INSTANCE.encode(byteBuf, packet);
+        ByteBuf encode = packetCodec.encode(byteBuf, packet);
         list.add(encode);
     }
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf byteBuf, List<Object> list) throws Exception {
-        Packet decode = PacketCodeC.INSTANCE.decode(byteBuf);
-        System.out.println("decode packet: " + decode);
+        Packet decode = packetCodec.decode(byteBuf);
+        logger.debug("decode packet " + decode);
         list.add(decode);
     }
 }

@@ -28,7 +28,7 @@ public class FriendCommandHandler extends BaseConsoleCommand {
 
     @Override
     public BaseConsoleCommand commandHandle(Channel channel) {
-        ConsoleCommandManager.execute(ClientCommand.FRIENDL, channel);
+        ConsoleCommandManager.execute(true, ClientCommand.FRIENDL, channel);
         return this;
     }
 

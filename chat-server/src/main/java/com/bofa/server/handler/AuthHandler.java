@@ -37,7 +37,7 @@ public class AuthHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (!SessionUtil.hasLogin(ctx.channel())) {
             InetSocketAddress address = (InetSocketAddress) ctx.channel().remoteAddress();
-            LoggerUtil.debug(logger, "Abnormal channel intercepted", address.getHostString() + ":" + address.getPort());
+            LoggerUtil.debug(logger, "非法IP通讯拦截 原因[该IP未登录] ", address.getHostString() + ":" + address.getPort());
             ctx.channel().close();
         } else {
             ctx.pipeline().remove(this);

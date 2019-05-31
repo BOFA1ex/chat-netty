@@ -15,9 +15,10 @@ public class MessageCallBackResponsePacket extends AbstractResponsePacket {
     public MessageCallBackResponsePacket() {
     }
 
-    public MessageCallBackResponsePacket(String content, String toUserName) {
+    public MessageCallBackResponsePacket(String content, String toUserName, boolean success) {
         this.content = content;
         this.toUserName = toUserName;
+        super.success = success;
     }
 
     String content;

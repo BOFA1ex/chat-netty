@@ -41,7 +41,7 @@ public class H2TaskManager {
 //    }
 
     public static void execute(String taskName, Runnable runnable) {
-        logger.debug("Task", taskName.toUpperCase());
+        logger.debug("Task " + taskName.toUpperCase());
         BUSI_POOL.execute(runnable);
     }
 }

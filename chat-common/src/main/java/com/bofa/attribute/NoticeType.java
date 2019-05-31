@@ -11,7 +11,6 @@ public enum NoticeType {
     /**
      * 通知类型
      */
-
     FRIEND_UNREAD_MESSAGE(1, "好友未读消息"),
     FRIEND_APPROVAL_MESSAGE(2, "好友验证请求"),
     FRIEND_APPROVAL_MESSAGE_CALLBACK(3, "好友验证响应"),

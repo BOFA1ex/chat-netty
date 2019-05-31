@@ -68,12 +68,4 @@ public class FriendACommandHandler extends FriendCommandHandler {
         return true;
     }
 
-    public static void main(String[] args) {
-        UserFriend u1 = new UserFriend();
-        u1.setUserFriendName("bofa");
-        UserFriend u2 = new UserFriend();
-        u2.setUserFriendName("yuli");
-        List<UserFriend> userFriends = Arrays.asList(u1, u2);
-        new FriendACommandHandler().findFriend(userFriends, "yul");
-    }
 }
