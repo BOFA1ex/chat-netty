@@ -20,7 +20,7 @@ public class ConsoleCommandManager {
      * 由BeanFactoryPostProcessor处理commandHandler
      * 缓存到ConsoleCommandManager的commandHashMap中
      *
-     * @see com.bofa.client.config.DevConfig
+     * @see com.bofa.client.config.MapperConfig
      */
     private static HashMap<ClientCommand, BaseConsoleCommand> commandHashMap = new HashMap<>();
 
@@ -68,8 +68,9 @@ public class ConsoleCommandManager {
      * @see com.bofa.client.console.commandhandler.NoticeCommandHandler
      */
     public static void execute(boolean commandInvalid, ClientCommand cmd, Channel channel) {
-        assert commandInvalid;
-        commandHashMap.get(cmd).commandHandle(channel).waitingForResp(cmd);
+        if (commandInvalid) {
+            commandHashMap.get(cmd).commandHandle(channel).waitingForResp(cmd);
+        }
     }
 
 }

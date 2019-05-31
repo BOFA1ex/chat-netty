@@ -52,10 +52,10 @@ public class LoginRequestHandler extends SimpleChannelInboundHandler<LoginReques
              */
             if ((user = SessionUtil.getUser(userName)) != null) {
                 prevUserId = user.getUserId();
+                Channel preChannel = SessionUtil.getChannel(prevUserId);
                 TaskManager.execute("通知上一个登录设备", () -> {
-                    UserNotice notice = mapper(ctx.channel(), user.getUserName());
-                    SessionUtil.getChannel(prevUserId)
-                            .writeAndFlush(new NoticeResponsePacket(notice)).addListener(future -> {
+                    UserNotice notice = mapper(ctx.channel(), user.getUserName(), prevUserId);
+                    preChannel.writeAndFlush(new NoticeResponsePacket(notice)).addListener(future -> {
                         Optional.ofNullable(future.cause()).ifPresent(Throwable::printStackTrace);
                         if (future.isSuccess()) {
                             logger.debug("通知上一个登录设备成功");
@@ -121,7 +121,7 @@ public class LoginRequestHandler extends SimpleChannelInboundHandler<LoginReques
         super.channelActive(ctx);
     }
 
-    private UserNotice mapper(Channel channel, String userName) {
+    private UserNotice mapper(Channel channel, String userName, Integer userId) {
         UserNotice notice = new UserNotice();
         String hostString = ((InetSocketAddress) channel.remoteAddress()).getHostString();
         notice.setNoticedatetime(LocalDateTimeUtil.now0());
@@ -129,6 +129,7 @@ public class LoginRequestHandler extends SimpleChannelInboundHandler<LoginReques
         notice.setNoticecontent("你的账号在另一个设备 [" + hostString + "] 登录");
         notice.setUsername("SYSTEM");
         notice.setNoticename(userName);
+        notice.setNoticeid(userId);
         return notice;
     }
 }
