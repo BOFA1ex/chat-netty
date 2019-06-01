@@ -69,7 +69,12 @@ public class FriendARequestHandler extends SimpleChannelInboundHandler<FriendARe
             TaskManager.topicExecute(topic, "save approval notice",
                     () -> UserNoticeSv.saveNotice(approvalNotice), ctx.channel(), true);
         } else {
+            /**
+             * 在线发送好友申请，noticeId和noticeName其一可能为空，需要填充
+             */
             final int approval2userId = toUser.getUserId();
+            approvalNotice.setNoticeid(approval2userId);
+            approvalNotice.setNoticename(toUser.getUserName());
             TaskManager.topicExecute(topic, "send approval online", () -> {
                 FriendACallBackRequestPacket packet = new FriendACallBackRequestPacket(approvalNotice);
                 SessionUtil.getChannel(approval2userId).writeAndFlush(packet);

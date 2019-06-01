@@ -10,6 +10,7 @@ import com.bofa.entity.UserFriend;
 import com.bofa.entity.UserNotice;
 import com.bofa.protocol.request.FriendACallBackRequestPacket;
 import com.bofa.protocol.response.FriendACallBackResponsePacket;
+import com.bofa.session.Session;
 import com.bofa.util.PrintUtil;
 import com.bofa.util.SessionUtil;
 import io.netty.channel.ChannelHandler;
@@ -48,7 +49,7 @@ public class FriendACallBackRequestHandler extends SimpleChannelInboundHandler<F
          * save notice which status is read
          */
         H2TaskManager.execute("save notice", () -> {
-            approvalNotice.setNoticestatus(NoticeStatus.READ.status);
+            approvalNotice.setNoticestatus(NoticeStatus.UNREAD.status);
             userNoticeSv.save(approvalNotice);
         });
     }
@@ -80,7 +81,9 @@ public class FriendACallBackRequestHandler extends SimpleChannelInboundHandler<F
             case "y":
                 responsePacket.setSuccess(true);
                 Optional.ofNullable(SessionUtil.getSession(userFriend.getUserId()))
-                        .ifPresent(session -> session.getFriends().add(userFriend));
+                        .ifPresent(session -> {
+                            session.getFriends().add(userFriend);
+                        });
                 H2TaskManager.execute("agree to save userFriend", () -> userFriendSv.save(userFriend));
                 break;
             case "n":
